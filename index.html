@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/dist/">
+    <title>Optipilot</title>
+    <style>
+        #app {
+            --width: 600px;
+            --height: 600px;
+            --background: #090B0E;
+
+            width: var(--width);
+            min-width: var(--width);
+            max-width: var(--width);
+
+            height: var(--height);
+            min-height: var(--height);
+            max-height: var(--height);
+
+            background-color: var(--background);
+            padding-inline: 2rem;
+        }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
