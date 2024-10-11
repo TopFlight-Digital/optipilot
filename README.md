@@ -13,7 +13,7 @@ Optipilot is a CRO experiment ideation tool built on top of OpenAI API encapsula
 
 Before you begin, ensure you have the following requirements:
 
-- **Proto**: The toolchain for managing Node.js versions. Install it from [Proto](https://withfig.com/tools/proto).
+- **Proto**: The toolchain for managing Node.js versions. Install it from [Proto](https://moonrepo.dev/docs/proto/install).
 - **Node.js**: Managed by `proto`, which enforces the latest LTS version *(v20.9.0)*.
 - **pnpm**: For managing dependencies. Install it from [pnpm](https://pnpm.io/installation)
 
