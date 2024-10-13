@@ -4,6 +4,7 @@ import { fileURLToPath, URL } from 'node:url';
 import Components from 'unplugin-vue-components/vite';
 import AutoImport from 'unplugin-auto-import/vite';
 import createSvgSpritePlugin from 'vite-plugin-svg-sprite';
+import Unfonts from 'unplugin-fonts/vite';
 
 export default defineConfig({
     plugins: [
@@ -24,6 +25,16 @@ export default defineConfig({
         }),
         createSvgSpritePlugin({
             symbolId: `icon-[name]-[hash]`,
+        }),
+        Unfonts({
+            google: {
+                families: [
+                    {
+                        name: `Figtree`,
+                        styles: `ital,wght@0,300..900;1,300..900`,
+                    },
+                ],
+            },
         }),
     ],
     resolve: {

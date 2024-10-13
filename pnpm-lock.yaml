@@ -11,6 +11,9 @@ importers:
       '@vueuse/core':
         specifier: ^11.1.0
         version: 11.1.0(vue@3.5.11(typescript@5.6.2))
+      unplugin-fonts:
+        specifier: ^1.1.1
+        version: 1.1.1(vite@5.4.8(@types/node@22.7.5)(sass@1.79.5)(terser@5.34.1))
       vue:
         specifier: ^3.5.10
         version: 3.5.11(typescript@5.6.2)
@@ -3418,6 +3421,15 @@ packages:
       '@nuxt/kit':
         optional: true
       '@vueuse/core':
+        optional: true
+
+  unplugin-fonts@1.1.1:
+    resolution: {integrity: sha512-/Aw/rL9D2aslGGM0vi+2R2aG508RSwawLnnBuo+JDSqYc4cHJO1R1phllhN6GysEhBp/6a4B6+vSFPVapWyAAw==}
+    peerDependencies:
+      '@nuxt/kit': ^3.0.0
+      vite: ^2.0.0 || ^3.0.0 || ^4.0.0 || ^5.0.0
+    peerDependenciesMeta:
+      '@nuxt/kit':
         optional: true
 
   unplugin-vue-components@0.27.4:
@@ -7680,6 +7692,14 @@ snapshots:
       '@vueuse/core': 11.1.0(vue@3.5.11(typescript@5.6.2))
     transitivePeerDependencies:
       - rollup
+      - webpack-sources
+
+  unplugin-fonts@1.1.1(vite@5.4.8(@types/node@22.7.5)(sass@1.79.5)(terser@5.34.1)):
+    dependencies:
+      fast-glob: 3.3.2
+      unplugin: 1.14.1
+      vite: 5.4.8(@types/node@22.7.5)(sass@1.79.5)(terser@5.34.1)
+    transitivePeerDependencies:
       - webpack-sources
 
   unplugin-vue-components@0.27.4(@babel/parser@7.25.7)(rollup@4.24.0)(vue@3.5.11(typescript@5.6.2)):
