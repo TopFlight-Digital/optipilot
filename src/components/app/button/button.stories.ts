@@ -1,6 +1,8 @@
 import { DEFAULT_ARGS } from '@/dev/constants';
 import Button from './button.vue';
 import forward from '@/icons/forward.svg';
+import backwards from '@/icons/backwards.svg';
+import download from '@/icons/download.svg';
 
 export default {
     component: Button,
@@ -19,7 +21,7 @@ export const NextButton = {
 export const BackButton = {
     args: {
         label: `Back`,
-        icon: `backwards`, // replace string with imported icon
+        icon: backwards,
         variant: `secondary`,
         wide: true,
         leader: `icon`, // icon, text
@@ -30,7 +32,7 @@ export const BackButton = {
 export const ScanProductPageButton = {
     args: {
         label: `Scan product page`,
-        icon: `forward`, // replace string with imported icon
+        icon: forward,
         variant: `primary`,
         wide: true,
         ...DEFAULT_ARGS,
@@ -40,7 +42,7 @@ export const ScanProductPageButton = {
 export const EditInputInformationButton = {
     args: {
         label: `Edit input information`,
-        icon: `forward`, // replace string with imported icon
+        icon: forward,
         variant: `secondary`,
         wide: true,
         ...DEFAULT_ARGS,
@@ -50,7 +52,7 @@ export const EditInputInformationButton = {
 export const DownloadProposalButton = {
     args: {
         label: `Download proposal`,
-        icon: `download`, // replace string with imported icon
+        icon: download,
         variant: `primary`,
         wide: true,
         ...DEFAULT_ARGS,
@@ -80,7 +82,7 @@ export const TryNowButtonA = {
     args: {
         label: `Try now`,
         variant: `secondary`,
-        icon: `forward`, // replace string with imported icon
+        icon: forward,
         size: `xsmall`,
         ...DEFAULT_ARGS,
     },
@@ -91,6 +93,7 @@ export const TryNowButtonB = {
         label: `Try now`,
         variant: `primary`,
         size: `small`, // 32.48px
+        wide: true,
         ...DEFAULT_ARGS,
     },
 };
