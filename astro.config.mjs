@@ -21,9 +21,9 @@ export default defineConfig({
             // eslint-disable-next-line unicorn/no-unreadable-iife
             (config => ({
                 name: `gfa`,
+
                 async load(source, { ssr }) {
-                    console.log(`source`, source);
-                    if (ssr || !source.endsWith(`.mjs`))
+                    if (ssr || !source.endsWith(`client.mjs`))
                         return;
 
                     const baseURL = `https://fonts.googleapis.com/css2`;
@@ -34,11 +34,14 @@ export default defineConfig({
                     }).join(`&`);
 
                     const googleFontLink = `${baseURL}?${fontParameters}&display=swap`;
-                    const codeToReturn = `document.head.insertAdjacentHTML('beforeend', '<link rel="stylesheet" href="${googleFontLink}">');`;
+                    let code = await fs.promises.readFile(source, `utf-8`);
+
+                    code += `
+                    document.head.insertAdjacentHTML('beforeend', '<link rel="stylesheet" href="${googleFontLink}">');`;
 
                     return {
-                        code: codeToReturn,
-                        moduleSideEffects: true, // Add this line
+                        code,
+                        moduleSideEffects: true,
                     };
                 },
             }))({
