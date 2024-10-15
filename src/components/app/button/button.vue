@@ -51,6 +51,7 @@ defineProps({
     font-family: Figtree;
     font-weight: 500;
     line-height: 1.5rem;
+    letter-spacing: -0.01em;
     cursor: pointer;
     transition: background-color 0.2s;
 
