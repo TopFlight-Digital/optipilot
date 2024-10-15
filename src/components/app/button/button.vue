@@ -48,6 +48,7 @@ defineProps({
     justify-content: center;
     border: 1px solid var(--color-primary);
     border-radius: 1.5rem;
+    font-family: Figtree;
     font-weight: 500;
     line-height: 1.5rem;
     cursor: pointer;
