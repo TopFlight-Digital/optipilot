@@ -31,7 +31,7 @@ defineProps({
     <button
         type="button"
         class="button"
-        :class="[`button__${variant}`, `button__${size}`, { button__wide: wide, 'button__icon-first': leader === `icon` }]"
+        :class="[`button--${variant}`, `button--${size}`, { 'button--wide': wide, 'button--icon-first': leader === `icon` }]"
     >
         {{ label }}
         <app-icon
@@ -60,7 +60,7 @@ defineProps({
         height: 1.5rem;
     }
 
-    &__primary {
+    &--primary {
         background-color: var(--color-primary);
         color: var(--text-color-dark);
 
@@ -69,7 +69,7 @@ defineProps({
         }
     }
 
-    &__secondary {
+    &--secondary {
         background-color: var(--color-secondary);
         color: var(--text-color-light);
 
@@ -78,27 +78,27 @@ defineProps({
         }
     }
 
-    &__xsmall {
+    &--xsmall {
         padding: 2px 17.5px;
         font-size: 0.75rem;
     }
 
-    &__small {
+    &--small {
         padding: 3.24px 17.5px;
         font-size: 1rem;
     }
 
-    &__regular {
+    &--regular {
         padding: 5.5px 17.5px;
         font-size: 1rem;
     }
 
-    &__wide {
+    &--wide {
         width: 100%;
         gap:0.5rem;
     }
 
-    &__icon-first {
+    &--icon-first {
         flex-direction: row-reverse;
     }
 }
