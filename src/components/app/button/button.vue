@@ -46,7 +46,7 @@ defineProps({
     display: flex;
     align-items: center;
     justify-content: center;
-    border: none;
+    border: 1px solid var(--color-primary);
     border-radius: 1.5rem;
     font-weight: 500;
     line-height: 1.5rem;
@@ -70,7 +70,6 @@ defineProps({
     &__secondary {
         background-color: var(--color-secondary);
         color: var(--text-color-light);
-        border: 1px solid var(--color-primary);
 
         &:hover {
             background-color: var(--color-secondary-hover);
@@ -78,17 +77,17 @@ defineProps({
     }
 
     &__xsmall {
-        padding: 3px 18.5px;
+        padding: 2px 17.5px;
         font-size: 0.75rem;
     }
 
     &__small {
-        padding: 4.24px 18.5px;
+        padding: 3.24px 17.5px;
         font-size: 1rem;
     }
 
     &__regular {
-        padding: 6.5px 18.5px;
+        padding: 5.5px 17.5px;
         font-size: 1rem;
     }
 
@@ -99,17 +98,6 @@ defineProps({
 
     &__icon-first {
         flex-direction: row-reverse;
-    }
-
-    // padding minus border width
-    &__secondary.button__xsmall {
-        padding: 2px 17.5px;
-    }
-    &__secondary.button__small {
-        padding: 3.24px 17.5px;
-    }
-    &__secondary.button__regular {
-        padding: 5.5px 17.5px;
     }
 }
 </style>
