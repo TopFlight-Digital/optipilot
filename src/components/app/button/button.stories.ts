@@ -1,4 +1,3 @@
-import { DEFAULT_ARGS } from '@/dev/constants';
 import Button from './button.vue';
 import forward from '@/icons/forward.svg';
 import backwards from '@/icons/backwards.svg';
@@ -14,7 +13,6 @@ export const NextButton = {
         icon: forward,
         variant: `primary`,
         wide: true,
-        ...DEFAULT_ARGS,
     },
 };
 
@@ -25,7 +23,6 @@ export const BackButton = {
         variant: `secondary`,
         wide: true,
         leader: `icon`, // icon, text
-        ...DEFAULT_ARGS,
     },
 };
 
@@ -35,7 +32,6 @@ export const ScanProductPageButton = {
         icon: forward,
         variant: `primary`,
         wide: true,
-        ...DEFAULT_ARGS,
     },
 };
 
@@ -45,7 +41,6 @@ export const EditInputInformationButton = {
         icon: forward,
         variant: `secondary`,
         wide: true,
-        ...DEFAULT_ARGS,
     },
 };
 
@@ -55,7 +50,6 @@ export const DownloadProposalButton = {
         icon: download,
         variant: `primary`,
         wide: true,
-        ...DEFAULT_ARGS,
     },
 };
 
@@ -65,7 +59,6 @@ export const DiscardButton = {
         variant: `secondary`,
         wide: true,
         size: `xsmall`, // xsmall, small, regular
-        ...DEFAULT_ARGS,
     },
 };
 
@@ -74,7 +67,6 @@ export const PackagesButton = {
         label: `Packages`,
         variant: `primary`,
         wide: true,
-        ...DEFAULT_ARGS,
     },
 };
 
@@ -84,7 +76,6 @@ export const TryNowButtonA = {
         variant: `secondary`,
         icon: forward,
         size: `xsmall`,
-        ...DEFAULT_ARGS,
     },
 };
 
@@ -94,6 +85,5 @@ export const TryNowButtonB = {
         variant: `primary`,
         size: `small`, // 32.48px
         wide: true,
-        ...DEFAULT_ARGS,
     },
 };

@@ -5,7 +5,7 @@ Optipilot is a CRO experiment ideation tool built on top of OpenAI API encapsula
 ## DX Features
 
 - **Vue 3** for building reactive UIs.
-- **Astrobook** for components preview.
+- **Storybook** for components preview.
 - **ESLint** for maintaining code quality and consistency (instead of prettier)
 - **Automatic import and component registration** using `unplugin-auto-import` and `unplugin-vue-components`.
 
@@ -51,7 +51,7 @@ Before you begin, ensure you have the following requirements:
   pnpm serve
   ```
 
-- **`pnpm components`**: Starts the Astrobook server for developing components.
+- **`pnpm components`**: Starts the Storybook server for developing components.
 
   ```bash
   pnpm components

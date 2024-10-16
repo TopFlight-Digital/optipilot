@@ -1,3 +1,5 @@
+@import 'global.css';
+
 :root {
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
@@ -13,18 +15,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-
-    --color-primary: #ABAEE9;
-    --color-secondary: #5F63A0;
-    --color-primary-hover: #ABAEE9;
-    --color-secondary-hover: #5F63A0;
-    --text-color-light: #F6F6FC;
-    --text-color-dark: #090B0E;
 }
 
 a {
