@@ -1,0 +1,15 @@
+/* Styles common for the Extension, Demo, and Storybook */
+
+:root {
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    --color-primary: #ABAEE9;
+    --color-secondary: #5F63A0;
+    --color-primary-hover: #ABAEE9;
+    --color-secondary-hover: #5F63A0;
+    --text-color-light: #F6F6FC;
+    --text-color-dark: #090B0E;
+}

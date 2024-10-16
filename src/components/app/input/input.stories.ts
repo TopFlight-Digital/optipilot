@@ -1,4 +1,3 @@
-import { DEFAULT_ARGS } from '@/dev/constants';
 import Input from './input.vue';
 
 export default {
@@ -11,7 +10,6 @@ export const PrimaryObjectiveInput = {
         hint: `What is the key goal for this product page?`,
         type: `text`,
         required: true,
-        ...DEFAULT_ARGS,
     },
 };
 
@@ -20,7 +18,6 @@ export const SecondaryObjectiveInput = {
         label: `Secondary objective`,
         type: `text`,
         required: false,
-        ...DEFAULT_ARGS,
     },
 };
 
@@ -29,7 +26,6 @@ export const ScanNameInput = {
         label: `Scan name`,
         type: `text`,
         required: true,
-        ...DEFAULT_ARGS,
     },
 };
 
@@ -39,7 +35,6 @@ export const ScanObjectiveInput = {
         hint: `What is the key goal for this scan?`,
         type: `text`,
         required: true,
-        ...DEFAULT_ARGS,
     },
 };
 
@@ -49,6 +44,5 @@ export const ProductInformationTextarea = {
         hint: `Tell us about your product page`,
         type: `textarea`,
         required: true,
-        ...DEFAULT_ARGS,
     },
 };
