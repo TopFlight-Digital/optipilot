@@ -4,14 +4,19 @@ defineProps({
         type: String,
         required: true,
     },
+    color: {
+        type: String,
+        required: true,
+    },
     inline: {
         type: Boolean,
         default: false,
     },
-})
+});
 </script>
 
-<!-- TODO: Remove hardcoded [style] -->
 <template>
-    <div class="app-copy" style="color:#fff" />
+    <div
+        class="app-copy"
+    />
 </template>
