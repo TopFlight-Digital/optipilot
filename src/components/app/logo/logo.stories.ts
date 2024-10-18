@@ -1,4 +1,3 @@
-import { DEFAULT_ARGS } from '@/dev/constants';
 import Logo from './logo.vue';
 
 export default {
@@ -6,8 +5,5 @@ export default {
 };
 
 export const logo = {
-    args: {
-        wide: true,
-        ...DEFAULT_ARGS,
-    },
+    args: {},
 };
