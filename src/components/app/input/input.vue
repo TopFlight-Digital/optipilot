@@ -84,7 +84,7 @@ const model = defineModel<string>();
     font-weight: 500;
     line-height: 1.15;
     letter-spacing: -0.01em;
-    color: #CDCFE2;
+    color: var(--text-color-mid);
 }
 
 .app-input__hint {
@@ -94,7 +94,7 @@ const model = defineModel<string>();
   font-weight: 500;
   line-height: 1.5;
   letter-spacing: -0.01em;
-  color: #CDCFE2;
+  color: var(--text-color-mid);
 }
 
 .app-input {
