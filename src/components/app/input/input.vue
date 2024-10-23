@@ -1,12 +1,16 @@
 <script lang="ts" setup>
-defineProps({
+import { Body, Meta, UppyFile } from '@uppy/core';
+
+type Model = typeof props.type extends `file` ? UppyFile<Meta, Body>[] : string;
+
+const props = defineProps({
     label: {
         type: String,
         required: true,
     },
     hint: String,
     type: {
-        type: String as () => `text` | `textarea`,
+        type: String as () => `text` | `textarea` | `file`,
         default: `text`,
     },
     required: {
@@ -15,7 +19,7 @@ defineProps({
     },
 });
 
-const model = defineModel<string>();
+const model = defineModel<Model>();
 
 </script>
 
@@ -45,6 +49,11 @@ const model = defineModel<string>();
 
         <textarea
             v-if="type === `textarea`"
+            v-model="model"
+        />
+
+        <app-uploader
+            v-else-if="type === `file`"
             v-model="model"
         />
 
@@ -107,15 +116,15 @@ const model = defineModel<string>();
         line-height: 21px;
         padding: 11px 15px 11px 20px;
         border-radius: 12px;
-        background-color: #0E1216;
-        border: 1px solid #47586E;
+        background-color: var(--color-backdrop-primary);
+        border: 1px solid var(--color-edge-primary);
         box-shadow: 0px 4px 4px 0px #00000040;
         appearance: none;
         -webkit-appearance: none;
         width: 100%;
         max-width: 500px;
         box-sizing: border-box;
-        color: #F6F6FC;
+        color: var(--text-color-light);
     }
 
     textarea {

@@ -21,6 +21,15 @@ export const SecondaryObjectiveInput = {
     },
 };
 
+export const SupportingDataInput = {
+    args: {
+        label: `Supporting data`,
+        hint: `Upload data-driven findings that show how users interact with the product page. Upload as images.`,
+        type: `file`,
+        required: true,
+    },
+};
+
 export const ScanNameInput = {
     args: {
         label: `Scan name`,
