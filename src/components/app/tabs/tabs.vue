@@ -23,6 +23,7 @@ const model = defineModel({ type: String });
 const gliderTranslationStyle = computed(() => ({
     '--app-tabs-glider-translation': `translateX(${props.items.findIndex(item => item.slug === model.value) * 100}%)`,
 }));
+const activeComponent = computed(() => props.items.find(item => item.slug === model.value)?.component);
 </script>
 
 <template>
@@ -56,10 +57,10 @@ const gliderTranslationStyle = computed(() => ({
         </div>
 
         <div
-            v-if="items.find(item => item.slug === model)?.component"
+            v-if="activeComponent"
             class="app-tabs__content"
         >
-            <component :is="items.find(item => item.slug === model)?.component" />
+            <component :is="activeComponent" />
         </div>
     </div>
 </template>
@@ -70,8 +71,8 @@ const gliderTranslationStyle = computed(() => ({
         display: flex;
         justify-content: space-between;
         padding: 4px;
-        background-color: #0D1013;
-        border: 1px solid #47586E;
+        background-color: var(--color-backdrop-secondary);
+        border: 1px solid var(--color-edge-primary);
         border-radius: 1.5rem;
 
         &--small {
@@ -98,9 +99,9 @@ const gliderTranslationStyle = computed(() => ({
         position: absolute;
         height: 100%;
         width: 100%;
-        background: #181C21;
+        background: var(--color-backdrop-tertiary);
         border-radius: 1.25rem;
-        border: 1px solid #47586E;
+        border: 1px solid var(--color-edge-primary);
         z-index: -1;
         top: -1px;
         left: -1px;
