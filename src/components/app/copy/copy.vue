@@ -64,7 +64,7 @@ const style = computed(() => ({
 
         &--label-1 {
             font-size: 14px;
-            line-height: 17.5px;
+            line-height: 18px;
         }
 
         &--label-2 {
