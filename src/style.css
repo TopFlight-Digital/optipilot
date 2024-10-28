@@ -9,13 +9,14 @@
     color: rgba(255, 255, 255, 0.87);
 
     background:
-        repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%)
+        repeating-conic-gradient(#000 0% 25%, transparent 0% 50%)
         50% / 20px 20px;
 
     margin: auto;
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
 }
 
 a {
@@ -34,4 +35,10 @@ body {
     place-items: center;
     min-width: 320px;
     min-height: 100vh;
+    overflow: hidden;
+}
+
+body:not(.extension.popup) #app {
+    border-radius: 24px;
+    overflow: hidden;
 }
