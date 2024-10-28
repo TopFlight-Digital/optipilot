@@ -6,7 +6,7 @@ const props = defineProps({
         type: Array as () => Array<{
             slug: string;
             label: string;
-            component: any;
+            component?: Component;
         }>,
         required: true,
     },
@@ -20,9 +20,15 @@ const props = defineProps({
 });
 
 const model = defineModel({ type: String });
-const gliderTranslationStyle = computed(() => ({
-    '--app-tabs-glider-translation': `translateX(${props.items.findIndex(item => item.slug === model.value) * 100}%)`,
-}));
+
+const gliderTranslationStyle = computed(() => {
+    const currentIndex = props.items.findIndex(item => item.slug === model.value);
+
+    return {
+        '--app-tabs-glider-translation': `translateX(calc(${currentIndex * 100}% + ${currentIndex} * 10px))`,
+    };
+});
+
 const activeComponent = computed(() => props.items.find(item => item.slug === model.value)?.component);
 </script>
 
@@ -70,10 +76,12 @@ const activeComponent = computed(() => props.items.find(item => item.slug === mo
     &__tabs {
         display: flex;
         justify-content: space-between;
-        padding: 4px;
+        padding: 3px;
         background-color: var(--color-backdrop-secondary);
         border: 1px solid var(--color-edge-primary);
         border-radius: 1.5rem;
+        height: 54px;
+        gap: 10px;
 
         &--small {
             padding: 2px;
@@ -83,7 +91,7 @@ const activeComponent = computed(() => props.items.find(item => item.slug === mo
     &__tab {
         position: relative;
         width: 100%;
-        padding: 12px;
+        padding-inline: 12px;
         border: 1px solid transparent;
         border-radius: 1.25rem;
         background-color: transparent;
@@ -97,8 +105,8 @@ const activeComponent = computed(() => props.items.find(item => item.slug === mo
 
     &__glider {
         position: absolute;
-        height: 100%;
-        width: 100%;
+        height: calc(100% + 2px);
+        width: calc(100% + 2px);
         background: var(--color-backdrop-tertiary);
         border-radius: 1.25rem;
         border: 1px solid var(--color-edge-primary);
