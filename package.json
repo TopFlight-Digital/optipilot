@@ -24,6 +24,8 @@
     "@uppy/drop-target": "^3.0.1",
     "@uppy/vue": "^2.0.1",
     "@vueuse/core": "^11.1.0",
+    "overlayscrollbars": "^2.10.0",
+    "overlayscrollbars-vue": "^0.5.9",
     "unplugin-fonts": "^1.1.1",
     "vue": "^3.5.12"
   },
