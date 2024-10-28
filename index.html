@@ -11,6 +11,7 @@
             --width: 600px;
             --height: 600px;
             --background: #090B0E;
+            --container-padding: 2rem;
 
             width: var(--width);
             min-width: var(--width);
@@ -21,7 +22,11 @@
             max-height: var(--height);
 
             background-color: var(--background);
-            padding-inline: 2rem;
+            position: relative;
+        }
+
+        body:not(.popup) #app {
+            --height: 900px;
         }
     </style>
   </head>
