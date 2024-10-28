@@ -30,14 +30,19 @@ const model = defineModel<Model>();
     >
         <div class="app-input__overview">
             <div class="app-input__description">
-                <span
+                <app-copy
                     class="app-input__label"
+                    type="Title/h2"
+                    color="light"
+                    inline
                     v-text="label"
                 />
 
-                <span
+                <app-copy
                     v-if="hint"
                     class="app-input__hint"
+                    type="Label 1"
+                    color="mid"
                     v-text="hint"
                 />
             </div>
@@ -69,41 +74,23 @@ const model = defineModel<Model>();
 .app-input__description {
     display: flex;
     flex-direction: column;
-    row-gap: 8px;
+    row-gap: 9.5px;
+    max-width: 500px;
 }
 
 .app-input {
     display: flex;
     flex-direction: column;
-    row-gap: 8px;
+    row-gap: 10px;
 
     &--required {
         .app-input__label {
             &::after {
+                color: var(--text-color-mid);
                 content: '*';
             }
         }
     }
-}
-
-.app-input__label {
-    // styleName: Title/h2;
-    font-family: Figtree;
-    font-size: 20px;
-    font-weight: 500;
-    line-height: 1.15;
-    letter-spacing: -0.01em;
-    color: var(--text-color-mid);
-}
-
-.app-input__hint {
-  //styleName: Title/h4;
-  font-family: Figtree;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 1.5;
-  letter-spacing: -0.01em;
-  color: var(--text-color-mid);
 }
 
 .app-input {
@@ -114,7 +101,7 @@ const model = defineModel<Model>();
         font-size: 14px;
         font-weight: 400;
         line-height: 21px;
-        padding: 11px 15px 11px 20px;
+        padding: 10.5px 15px 10.5px 20px;
         border-radius: 12px;
         background-color: var(--color-backdrop-primary);
         border: 1px solid var(--color-edge-primary);
