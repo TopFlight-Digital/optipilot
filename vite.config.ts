@@ -32,6 +32,7 @@ export default defineConfig({
                     {
                         name: `Figtree`,
                         styles: `ital,wght@0,300..900;1,300..900`,
+                        defer: false,
                     },
                 ],
             },
