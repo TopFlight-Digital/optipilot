@@ -82,6 +82,7 @@ watchDeep(
     background: var(--color-backdrop-primary);
     height: 132px;
     box-sizing: border-box;
+    max-width: 500px;
 
     &__core {
         display: none;
