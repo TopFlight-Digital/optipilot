@@ -4,3 +4,9 @@
 <template>
     <hello-world />
 </template>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+</style>
