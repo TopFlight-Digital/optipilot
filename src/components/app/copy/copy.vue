@@ -25,7 +25,7 @@ const style = computed(() => ({
 <template>
     <div
         class="app-copy"
-        :class="[`app-copy--${props.type.toLowerCase().replace(` `, `-`).replace(`/`, `-`)}`]"
+        :class="[`app-copy--${props.type.toLowerCase().replace(/[ \/]/g, `-`)}`]"
         :style="style"
     />
 </template>
