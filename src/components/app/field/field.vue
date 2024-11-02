@@ -21,7 +21,7 @@ defineProps(FIELD_PROPS);
                 <app-copy
                     v-if="hint"
                     class="app-field__hint"
-                    type="Label 1"
+                    type="Body/b1-med"
                     color="cd"
                     v-text="hint"
                 />

@@ -1,9 +1,20 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
+/** Typography style names as seen in Figma. */
+type Type =
+  | `Title/h1`
+  | `Title/h2`
+  | `Title/h3`
+  | `Title/h4`
+  | `Label 2`
+  | `Button 2/label 1`
+  | `Body/b1-med`
+  | `Body/b1-reg`;
+
 const props = defineProps({
     type: {
-        type: String,
+        type: String as () => Type,
         required: true,
     },
     color: {
@@ -48,7 +59,6 @@ const style = computed(() => ({
             &-h2 {
                 font-size: 20px;
                 line-height: 23px;
-
             }
 
             &-h3 {
@@ -78,6 +88,19 @@ const style = computed(() => ({
             font-weight: 400;
             line-height: 21px;
             letter-spacing: normal;
+        }
+
+        &--body-b1-med {
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 21px;
+            letter-spacing: .003em;
+        }
+
+        &--button-2-label-1 {
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 17.5px;
         }
     }
 </style>

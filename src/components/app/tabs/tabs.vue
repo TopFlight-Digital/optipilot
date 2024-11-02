@@ -55,7 +55,7 @@ const activeComponent = computed(() => props.items.find(item => item.slug === mo
                 />
 
                 <app-copy
-                    :type="size === 'large' ? 'Label 1' : 'Label 2'"
+                    :type="size === 'large' ? 'Button 2/label 1' : 'Label 2'"
                     color="f6"
                     v-text="item.label"
                 />

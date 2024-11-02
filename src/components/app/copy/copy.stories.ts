@@ -19,50 +19,34 @@ export default {
     },
 };
 
-export const ProductPageSummaryCopy = {
+export const AboutYourWebsiteCopy = {
     args: {
-        vText: `Product page summary`,
+        vText: `About your website`,
         type: `Title/h1`,
         color: `f6`,
     },
 };
 
-export const ProductPageSummarySubCopy = {
+export const AboutYourWebsiteSubCopy = {
     args: {
-        vText: `Prior to scanning, tell us a bit of information about the website, lorem ipsum dolor sit amet consectetur.`,
-        type: `Title/h3`,
+        vText: `Help me understand your website so I can scan and analyse it effectively.`,
+        type: `Title/h4`,
         color: `cd`,
     },
 };
 
-export const ProductPageScanCopy = {
+export const AboutTheWebPageCopy = {
     args: {
-        vText: `Product page scan`,
+        vText: `About the web page`,
         type: `Title/h1`,
         color: `f6`,
     },
 };
 
-export const ProductPageScanSubCopy = {
+export const AboutTheWebPageSubCopy = {
     args: {
         vText: `Tell us about the page you’d like to scan, and find out how you can improve your website.`,
-        type: `Title/h3`,
-        color: `cd`,
-    },
-};
-
-export const ScanSetupCopy = {
-    args: {
-        vText: `Scan setup`,
-        type: `Title/h1`,
-        color: `f6`,
-    },
-};
-
-export const ScanSetupSubCopy = {
-    args: {
-        vText: `Lorem ipsum dolor sit amet consectetur. Feugiat ac arcu tincidunt dignissim.`,
-        type: `Title/h3`,
+        type: `Title/h4`,
         color: `cd`,
     },
 };
@@ -115,57 +99,89 @@ export const CraftingSuggestionsCopy = {
     },
 };
 
-export const ScanResultsTitleCopy = {
+export const AnalysisResultsCopy = {
     args: {
-        vText: `Scan results`,
+        vText: `Analysis results`,
         type: `Title/h1`,
         color: `cd`,
     },
 };
 
-export const ScanResultsSubTextCopy = {
+export const AnalysisResultsSubCopy = {
     args: {
-        vText: `Lorem ipsum dolor sit amet consectetur. Feugiat ac arcu tincidunt dignissim.`,
-        type: `Title/h3`,
-        color: `f6`,
-    },
-};
-
-export const HypothesisLabelCopy = {
-    args: {
-        vText: `Hypothesis 1`,
-        type: `Body/b1-reg`,
-        color: `cd`,
-    },
-};
-
-export const HypothesisTitleCopy = {
-    args: {
-        vText: `Personalised products`,
-        type: `Title/h1`,
-        color: `f6`,
-    },
-};
-
-export const HypothesisBodyCopy = {
-    args: {
-        vText: `Highlighting limited-time discounts on product tiles will increase click-through rate by creating a sense of urgency and value.`,
+        vText: `Discover how to improve your website through the proposed changes below.`,
         type: `Title/h4`,
         color: `cd`,
     },
 };
 
-export const OpportunityTitleCopy = {
+export const ProposalLabelCopy = {
     args: {
-        vText: `Opportunity from insights`,
-        type: `Title/h3`,
+        vText: `Proposal 1`,
+        type: `Button 2/label 1`,
+        color: `cd`,
+    },
+};
+
+export const ProposalTitleCopy = {
+    args: {
+        vText: `Optimise product listings`,
+        type: `Title/h1`,
         color: `f6`,
     },
 };
 
-export const OpportunityBodyCopy = {
+export const ProposalBodyCopy = {
     args: {
-        vText: `We see a 44% drop-off from the PLP to the PDP. Returning users are 70% likely to go back to a category they viewed in a previous session. Returning users have an average session time of 20 minutes meaning they are spending a considerable amount of time browsing products. 80% of those users to not purchase and spend longer browsing products.`,
+        vText: `Reducing decision fatigue and improving navigation can encourage users to progress and ultimately convert.`,
+        type: `Body/b1-med`,
+        color: `cd`,
+    },
+};
+
+export const DataAnalysisTitleCopy = {
+    args: {
+        vText: `Data analysis`,
+        type: `Title/h2`,
+        color: `f6`,
+    },
+};
+
+export const DataAnalysisBodyCopy = {
+    args: {
+        vText: `From the data you have inputted, I can see an overall drop-off rate of 44% from the PLP to the PDP. Returning users are 70% more likely to go back to a category that they viewed in a previous session. Returning users have an average session time of 20 minutes meaning they are spending a considerable amount of time browsing products. 80% of those users to not purchase and spend longer browsing products.`,
+        type: `Body/b1-reg`,
+        color: `cd`,
+    },
+};
+
+export const UserBehaviorTitleCopy = {
+    args: {
+        vText: `User behaviour insights`,
+        type: `Title/h2`,
+        color: `f6`,
+    },
+};
+
+export const UserBehaviorBodyCopy = {
+    args: {
+        vText: `The data indicates potential friction points or decision paralysis, with users engaging deeply but struggling to make purchase decisions.`,
+        type: `Body/b1-reg`,
+        color: `cd`,
+    },
+};
+
+export const OpportunityForImprovementTitleCopy = {
+    args: {
+        vText: `Opportunity for improvement`,
+        type: `Title/h2`,
+        color: `f6`,
+    },
+};
+
+export const OpportunityForImprovementBodyCopy = {
+    args: {
+        vText: `Optimizing product listings and streamlining the buying process could improve conversions.`,
         type: `Body/b1-reg`,
         color: `cd`,
     },
@@ -174,100 +190,76 @@ export const OpportunityBodyCopy = {
 export const ExecutionTitleCopy = {
     args: {
         vText: `Execution`,
-        type: `Title/h3`,
+        type: `Title/h2`,
         color: `f6`,
     },
 };
 
 export const ExecutionBodyCopy = {
     args: {
-        vText: `Under a given product tile on the listing page, display a limited time discount in red bold letters for all products that are currently on sale. As an example, the copy should read 'limited time discount 20% off until 23rd July'`,
+        vText: `Improving Discoverability: Enhancing search filters, product categories, and sorting options can help users find what they are looking for faster, reducing frustration and drop-offs.`,
         type: `Body/b1-reg`,
         color: `cd`,
     },
 };
 
-export const TechnicalConsiderationsTitleCopy = {
+export const Proposal1LabelCopy = {
     args: {
-        vText: `Technical considerations`,
+        vText: `Proposal 1`,
+        type: `Label 2`,
+        color: `cd`,
+    },
+};
+
+export const Proposal1TitleCopy = {
+    args: {
+        vText: `Optimise product listings`,
         type: `Title/h3`,
         color: `f6`,
     },
 };
 
-export const TechnicalConsiderationsBodyCopy = {
+export const Proposal1BodyCopy = {
     args: {
-        vText: `Since the current listing page does not render discounts, the ability to retrieve the discount for a given product will need to be implemented via an API or a page scrape. you would do tbis by doing XYZ. tjektnekn. rheifnejfne jrjeorejroej oekeotkro hwjDISRT OFGJRDGKS djskrnewkfndgorjtkenf a .`,
-        type: `Body/b1-reg`,
+        vText: `Reducing decision fatigue and improving navigation can encourage users to progress and ultimately convert.`,
+        type: `Body/b1-med`,
         color: `cd`,
     },
 };
 
-export const ExpectedImpactTitleCopy = {
+export const Proposal2LabelCopy = {
     args: {
-        vText: `Expected impact`,
-        type: `Title/h3`,
-        color: `f6`,
-    },
-};
-
-export const Hypothesis1LabelCopy = {
-    args: {
-        vText: `Hypothesis 1`,
+        vText: `Proposal 2`,
         type: `Label 2`,
         color: `cd`,
     },
 };
 
-export const Hypothesis1TitleCopy = {
+export const Proposal2TitleCopy = {
     args: {
-        vText: `Personalised products`,
+        vText: `Enhance product imagery`,
         type: `Title/h4`,
         color: `f6`,
     },
 };
 
-export const Hypothesis1BodyCopy = {
+export const Proposal2BodyCopy = {
     args: {
         vText: `Lorem ipsum dolor sit amet consectetur. Sagittis sed vitae integer eleifend dictum malesuada morbi.dictum malesuada morbi.`,
-        type: `Body/b1-reg`,
+        type: `Body/b1-med`,
         color: `cd`,
     },
 };
 
-export const Hypothesis2LabelCopy = {
+export const Proposal3LabelCopy = {
     args: {
-        vText: `Hypothesis 2`,
+        vText: `Proposal 3`,
         type: `Label 2`,
         color: `cd`,
     },
 };
 
-export const Hypothesis2TitleCopy = {
-    args: {
-        vText: `Enhanced product imagery`,
-        type: `Title/h4`,
-        color: `f6`,
-    },
-};
-
-export const Hypothesis2BodyCopy = {
-    args: {
-        vText: `Lorem ipsum dolor sit amet consectetur. Sagittis sed vitae integer eleifend dictum malesuada morbi.dictum malesuada morbi.`,
-        type: `Body/b1-reg`,
-        color: `cd`,
-    },
-};
-
-export const Hypothesis3LabelCopy = {
-    args: {
-        vText: `Hypothesis 3`,
-        type: `Label 2`,
-        color: `cd`,
-    },
-};
-
-export const Hypothesis3TitleCopy = {
+export const Proposal3TitleCopy = {
     args: {
         vText: `Preview customer reviews`,
         type: `Title/h4`,
@@ -275,10 +267,10 @@ export const Hypothesis3TitleCopy = {
     },
 };
 
-export const Hypothesis3BodyCopy = {
+export const Proposal3BodyCopy = {
     args: {
         vText: `Lorem ipsum dolor sit amet consectetur. Sagittis sed vitae integer eleifend dictum malesuada morbi.dictum malesuada morbi.`,
-        type: `Body/b1-reg`,
+        type: `Body/b1-med`,
         color: `cd`,
     },
 };
@@ -293,24 +285,24 @@ export const OutOfScansTitleCopy = {
 
 export const OutOfScansSubTitleCopy = {
     args: {
-        vText: `View packages to access more, and improve your website.`,
+        vText: `View pricing plans to access more, and improve your website.`,
         type: `Title/h3`,
         color: `cd`,
     },
 };
 
-export const PayOnceTitleCopy = {
+export const FlexiblePlansCopy = {
     args: {
-        vText: `Pay once, use forever`,
+        vText: `Flexible plans for your needs`,
         type: `Title/h1`,
         color: `f6`,
     },
 };
 
-export const PayOnceSubTitleCopy = {
+export const FlexiblePlansSubCopy = {
     args: {
-        vText: `Lorem ipsum dolor sit amet consectetur. Feugiat ac arcu tincidunt dignissim.`,
-        type: `Title/h3`,
+        vText: `Whether you need a quick scan or ongoing optimisation, I’ve got you covered.`,
+        type: `Title/h4`,
         color: `cd`,
     },
 };
@@ -325,7 +317,7 @@ export const OneScanTitleCopy = {
 
 export const OneScanSubTextCopy = {
     args: {
-        vText: `Lorem ipsum dolor sit amet consectetur.`,
+        vText: `Perfect for one-time diagnostics`,
         type: `Label 2`,
         color: `cd`,
     },
@@ -350,7 +342,7 @@ export const UnlimitedScansTitleCopy = {
 
 export const UnlimitedScansSubTextCopy = {
     args: {
-        vText: `Lorem ipsum dolor sit amet consectetur. Feugi.`,
+        vText: `For unlimited optimization and maximum flexibility`,
         type: `Label 2`,
         color: `cd`,
     },
@@ -384,7 +376,7 @@ export const TwentyScansTitleCopy = {
 
 export const TwentyScansSubTextCopy = {
     args: {
-        vText: `Lorem ipsum dolor sit amet consectetur.`,
+        vText: `For small businesses with moderate needs`,
         type: `Label 2`,
         color: `cd`,
     },
@@ -418,8 +410,8 @@ export const ExtraMonthsCopy = {
 
 export const TrustedUsCopy = {
     args: {
-        vText: `Lorem ipsum dolor sit amet consectetur.`,
-        type: `Title/h4`,
+        vText: `Trusted by industry leaders to analyse and optimise`,
+        type: `Body/b1-med`,
         color: `cd`,
     },
 };
