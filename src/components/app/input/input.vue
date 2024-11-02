@@ -1,21 +1,14 @@
 <script lang="ts" setup>
 import { Body, Meta, UppyFile } from '@uppy/core';
+import { FIELD_PROPS } from '../field/field';
 
 type Model = typeof props.type extends `file` ? UppyFile<Meta, Body>[] : string;
 
 const props = defineProps({
-    label: {
-        type: String,
-        required: true,
-    },
-    hint: String,
+    ...FIELD_PROPS,
     type: {
         type: String as () => `text` | `textarea` | `file`,
         default: `text`,
-    },
-    required: {
-        type: Boolean,
-        default: false,
     },
 });
 
@@ -24,33 +17,15 @@ const model = defineModel<Model>();
 </script>
 
 <template>
-    <label
+    <app-field
+        :label="label"
+        :hint="hint"
+        :required="required"
         class="app-input"
-        :class="{ 'app-input--required': required }"
     >
-        <div class="app-input__overview">
-            <div class="app-input__description">
-                <app-copy
-                    class="app-input__label"
-                    type="Title/h2"
-                    color="light"
-                    inline
-                    v-text="label"
-                />
-
-                <app-copy
-                    v-if="hint"
-                    class="app-input__hint"
-                    type="Label 1"
-                    color="mid"
-                    v-text="hint"
-                />
-            </div>
-
-            <div class="app-input__description-extra">
-                <slot name="label:after" />
-            </div>
-        </div>
+        <template #label:after>
+            <slot name="label:after" />
+        </template>
 
         <textarea
             v-if="type === `textarea`"
@@ -67,32 +42,10 @@ const model = defineModel<Model>();
             v-model="model"
             :type="type"
         />
-    </label>
+    </app-field>
 </template>
 
 <style lang="scss">
-.app-input__description {
-    display: flex;
-    flex-direction: column;
-    row-gap: 9.5px;
-    max-width: 500px;
-}
-
-.app-input {
-    display: flex;
-    flex-direction: column;
-    row-gap: 10px;
-
-    &--required {
-        .app-input__label {
-            &::after {
-                color: var(--text-color-mid);
-                content: '*';
-            }
-        }
-    }
-}
-
 .app-input {
     input,
     textarea {
