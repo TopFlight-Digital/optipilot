@@ -5,11 +5,15 @@ import 'overlayscrollbars/styles/overlayscrollbars.css';
 
 createApp(App).mount(`#app`);
 
-if (globalThis.chrome !== `undefined` && globalThis.chrome?.extension) {
+if (globalThis.chrome && globalThis.chrome?.extension) {
     document.body.classList.add(`extension`);
     const popupViews = globalThis.chrome.extension.getViews({ type: `popup` });
 
-    if (popupViews.length && popupViews[0] === globalThis)
+    if (
+        popupViews.length
+        // @ts-ignore
+        && popupViews[0] === globalThis
+    )
         document.body.classList.add(`popup`);
     else
         document.body.classList.add(`tab`);

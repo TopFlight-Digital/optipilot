@@ -39,6 +39,7 @@
     "@storybook/test": "^8.3.5",
     "@storybook/vue3": "^8.3.5",
     "@storybook/vue3-vite": "^8.3.5",
+    "@types/chrome": "^0.0.280",
     "@typescript-eslint/eslint-plugin": "^8.8.1",
     "@typescript-eslint/parser": "^8.8.1",
     "@vitejs/plugin-vue": "^5.1.4",
