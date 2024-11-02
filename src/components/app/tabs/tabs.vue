@@ -56,7 +56,7 @@ const activeComponent = computed(() => props.items.find(item => item.slug === mo
 
                 <app-copy
                     :type="size === 'large' ? 'Label 1' : 'Label 2'"
-                    color="light"
+                    color="f6"
                     v-text="item.label"
                 />
             </button>
@@ -77,8 +77,8 @@ const activeComponent = computed(() => props.items.find(item => item.slug === mo
         display: flex;
         justify-content: space-between;
         padding: 3px;
-        background-color: var(--color-backdrop-secondary);
-        border: 1px solid var(--color-edge-primary);
+        background-color: var(--color-0d);
+        border: 1px solid var(--color-47);
         border-radius: 1.5rem;
         height: 54px;
         gap: 10px;
@@ -107,9 +107,9 @@ const activeComponent = computed(() => props.items.find(item => item.slug === mo
         position: absolute;
         height: calc(100% + 2px);
         width: calc(100% + 2px);
-        background: var(--color-backdrop-tertiary);
+        background: var(--color-18);
         border-radius: 1.25rem;
-        border: 1px solid var(--color-edge-primary);
+        border: 1px solid var(--color-47);
         z-index: -1;
         top: -1px;
         left: -1px;

@@ -17,7 +17,7 @@ const props = defineProps({
 });
 
 const style = computed(() => ({
-    '--app-copy-text-color': `var(--text-color-${props.color})`,
+    '--app-copy-text-color': `var(--color-${props.color})`,
     '--app-copy-display': props.inline ? `inline` : `block`,
 }));
 </script>

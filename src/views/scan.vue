@@ -83,7 +83,7 @@ const emit = defineEmits<{
             >
                 <app-copy
                     type="Label 2"
-                    color="mid"
+                    color="cd"
                     v-text="`Step 2 of 2`"
                 />
             </div>

@@ -6,18 +6,23 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 
-    --color-primary: #ABAEE9;
-    --color-secondary: #5F63A0;
-    --color-primary-hover: #ABAEE9;
-    --color-secondary-hover: #5F63A0;
-
-    --color-backdrop-primary: #0E1216;
-    --color-backdrop-secondary: #0D1013;
-    --color-backdrop-tertiary: #181C21;
-    --color-edge-primary: #47586E;
-
-    --text-color-light: #F6F6FC;
-    --text-color-mid: #CDCFE2;
-    --text-color-dark: #090B0E;
-    --text-color-accent: #ABAEE9;
+    /*
+     * Pattern: --color-<RR>: #RRGGBB
+     * e.g. --color-ab: #ABAEE9;
+     *
+     * `RR` — first byte of the hex color code, representing the Red channel.
+     * If a color with the same RR is already defined, use the next byte:
+     *
+     * --color-<RR><GG>
+     * e.g. --color-ab13: #AB1337;
+    */
+    --color-ab: #ABAEE9;
+    --color-5f: #5F63A0;
+    --color-0e: #0E1216;
+    --color-0d: #0D1013;
+    --color-18: #181C21;
+    --color-47: #47586E;
+    --color-f6: #F6F6FC;
+    --color-cd: #CDCFE2;
+    --color-09: #090B0E;
 }

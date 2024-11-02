@@ -56,15 +56,15 @@ const model = defineModel<Model>();
         line-height: 21px;
         padding: 10.5px 15px 10.5px 20px;
         border-radius: 12px;
-        background-color: var(--color-backdrop-primary);
-        border: 1px solid var(--color-edge-primary);
+        background-color: var(--color-0e);
+        border: 1px solid var(--color-47);
         box-shadow: 0px 4px 4px 0px #00000040;
         appearance: none;
         -webkit-appearance: none;
         width: 100%;
         max-width: 500px;
         box-sizing: border-box;
-        color: var(--text-color-light);
+        color: var(--color-f6);
     }
 
     textarea {

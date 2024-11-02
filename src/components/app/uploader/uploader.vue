@@ -73,13 +73,13 @@ watchDeep(
 
 <style lang="scss">
 .app-uploader {
-    border: 1px solid var(--color-edge-primary);
+    border: 1px solid var(--color-47);
     padding: 18px 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 12px;
-    background: var(--color-backdrop-primary);
+    background: var(--color-0e);
     height: 132px;
     box-sizing: border-box;
     max-width: 500px;
@@ -89,7 +89,7 @@ watchDeep(
     }
 
     &__icon {
-        color: var(--text-color-mid);
+        color: var(--color-cd);
         width: 24px;
         height: 24px;
     }
@@ -114,7 +114,7 @@ watchDeep(
         font-weight: 500;
         line-height: 15px;
         letter-spacing: -0.01em;
-        color: var(--text-color-light);
+        color: var(--color-f6);
         padding: 2px 2px 2px 4px;
         height: fit-content;
         display: grid;

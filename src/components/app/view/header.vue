@@ -14,14 +14,14 @@ defineProps({
         <app-copy
             v-if="headline"
             type="Title/h1"
-            color="light"
+            color="f6"
             v-text="headline"
         />
 
         <app-copy
             v-if="subline"
             type="Title/h4"
-            color="mid"
+            color="cd"
             v-text="subline"
         />
     </div>

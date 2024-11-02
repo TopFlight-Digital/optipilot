@@ -46,7 +46,7 @@ defineProps({
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--color-primary);
+    border: 1px solid var(--color-ab);
     border-radius: 1.5rem;
     font-family: Figtree;
     font-weight: 500;
@@ -61,20 +61,20 @@ defineProps({
     }
 
     &--primary {
-        background-color: var(--color-primary);
-        color: var(--text-color-dark);
+        background-color: var(--color-ab);
+        color: var(--color-09);
 
         &:hover {
-            background-color: var(--color-primary-hover);
+            background-color: var(--color-ab);
         }
     }
 
     &--secondary {
-        background-color: var(--color-secondary);
-        color: var(--text-color-light);
+        background-color: var(--color-5f);
+        color: var(--color-f6);
 
         &:hover {
-            background-color: var(--color-secondary-hover);
+            background-color: var(--color-5f);
         }
     }
 

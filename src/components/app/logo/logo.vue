@@ -8,7 +8,7 @@ import logo from '@/icons/logo.svg';
 
         <app-copy
             type="Title/h4"
-            color="light"
+            color="f6"
             v-text="`OptiPilot`"
         />
     </div>

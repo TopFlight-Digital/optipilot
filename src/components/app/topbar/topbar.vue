@@ -33,7 +33,7 @@ const window = globalThis;
         width: 14px;
         height: 14px;
         cursor: pointer;
-        color: var(--text-color-mid);
+        color: var(--color-cd);
     }
 }
 </style>

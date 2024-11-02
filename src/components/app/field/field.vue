@@ -13,7 +13,7 @@ defineProps(FIELD_PROPS);
                 <app-copy
                     class="app-field__label"
                     type="Title/h2"
-                    color="light"
+                    color="f6"
                     inline
                     v-text="label"
                 />
@@ -22,7 +22,7 @@ defineProps(FIELD_PROPS);
                     v-if="hint"
                     class="app-field__hint"
                     type="Label 1"
-                    color="mid"
+                    color="cd"
                     v-text="hint"
                 />
             </div>
@@ -52,7 +52,7 @@ defineProps(FIELD_PROPS);
     &--required {
         .app-field__label {
             &::after {
-                color: var(--text-color-mid);
+                color: var(--color-cd);
                 content: '*';
             }
         }
