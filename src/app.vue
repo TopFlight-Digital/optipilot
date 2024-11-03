@@ -14,6 +14,13 @@ const tabs = [
         label: `Analysis`,
     },
 ];
+
+const bloc = defineBloc();
+
+useChromeExtension(tab => {
+    initBloc(tab);
+});
+
 </script>
 
 <template>
@@ -29,7 +36,10 @@ const tabs = [
             model-value="website"
         />
 
-        <div class="app__view">
+        <div
+            v-if="bloc.ready"
+            class="app__view"
+        >
             <product-view
                 v-if="step === `product`"
                 @proceed="step = `scan`"
