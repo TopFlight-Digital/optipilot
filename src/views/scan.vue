@@ -1,11 +1,16 @@
 <script lang="ts" setup>
 import backwards from '@/icons/backwards.svg';
 import forward from '@/icons/forward.svg';
+import useVuelidate from '@vuelidate/core';
+import { required } from '@vuelidate/validators';
 
 const emit = defineEmits<{
     (event: `back`): void
     (event: `proceed`): void
 }>();
+
+const { scan } = useBloc();
+
 </script>
 
 <template>
@@ -23,37 +28,43 @@ const emit = defineEmits<{
             >
                 <div class="view__form">
                     <app-input
+                        v-model="scan.page"
                         label="Web page address"
                         hint="Enter the URL of the web page you want to scan."
                         type="text"
-                        required
+                        :required="scan.$validation.page.required"
                     />
 
                     <app-input
+                        v-model="scan.name"
                         label="Scan name"
                         hint="Name your scan (this will help you identify it later)."
                         type="text"
-                        required
+                        :required="scan.$validation.name.required"
                     />
 
                     <app-input
+                        v-model="scan.objective"
                         label="Objective"
                         hint="What are your goals for this scan? (e.g., improve usability, increase conversions)."
                         type="text"
-                        required
+                        :required="scan.$validation.objective.required"
                     />
 
                     <app-input
+                        v-model="scan.overview"
                         label="Web page information"
                         hint="Any additional details about the web page? (e.g., page purpose, audience)."
                         type="textarea"
+                        :required="scan.$validation.overview?.required"
                     />
 
                     <app-input
+                        v-model="scan.data"
                         label="Upload webpage data"
                         hint="Upload qualitative and/or quantitative data that show how users interact with the specific web page. Upload as CSV, Excel, PDF, JPG, PNG or MP3."
                         type="file"
-                        required
+                        :required="scan.$validation.data.required"
                     />
                 </div>
             </app-scroll-view>
@@ -74,6 +85,7 @@ const emit = defineEmits<{
                     :icon=forward
                     variant="primary"
                     wide
+                    :disabled="scan.$validation.$invalid"
                     @click="emit(`proceed`)"
                 />
             </div>

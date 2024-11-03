@@ -19,7 +19,7 @@ export default defineConfig({
                 `@vueuse/core`,
             ],
             dirs: [
-                `src/use/**`,
+                `src/composables/**`,
             ],
             vueTemplate: false,
         }),

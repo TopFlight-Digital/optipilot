@@ -4,6 +4,9 @@ import forward from '@/icons/forward.svg';
 const emit = defineEmits<{
     (event: `proceed`): void
 }>();
+
+const { product } = useBloc();
+
 </script>
 
 <template>
@@ -21,37 +24,43 @@ const emit = defineEmits<{
             >
                 <div class="view__form">
                     <app-input
+                        v-model="product.website"
                         label="Website address"
                         hint="Enter your website’s URL."
                         type="text"
-                        required
+                        :required="product.$validation.website.required"
                     />
 
                     <app-input
+                        v-model="product.goal"
                         label="Primary goal"
                         hint="What is the main purpose of your website?"
                         type="text"
-                        required
+                        :required="product.$validation.goal.required"
                     />
 
                     <app-input
+                        v-model="product.additionalGoals"
                         label="Additional goals"
                         hint="Does your website have any other goals?"
                         type="text"
+                        :required="product.$validation.additionalGoals?.required"
                     />
 
                     <app-input
+                        v-model="product.overview"
                         label="Business details"
                         hint="Tell me about your business or brand."
                         type="textarea"
-                        required
+                        :required="product.$validation.overview.required"
                     />
 
                     <app-input
+                        v-model="product.data"
                         label="Upload website data"
                         hint="Upload qualitative and/or quantitative data that show how users interact with your website. Upload as CSV, Excel, PDF, JPG, PNG or MP3."
                         type="file"
-                        required
+                        :required="product.$validation.data.required"
                     />
                 </div>
             </app-scroll-view>
@@ -64,6 +73,7 @@ const emit = defineEmits<{
                 :icon=forward
                 variant="primary"
                 wide
+                :disabled="product.$validation.$invalid"
                 @click="emit(`proceed`)"
             />
 

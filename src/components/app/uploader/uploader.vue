@@ -33,7 +33,7 @@ watchDeep(
 </script>
 
 <template>
-    <div
+    <label
         ref="root"
         class="app-uploader"
     >
@@ -68,7 +68,7 @@ watchDeep(
             class="app-uploader__icon"
             :name="upload"
         />
-    </div>
+    </label>
 </template>
 
 <style lang="scss">
@@ -83,6 +83,7 @@ watchDeep(
     height: 132px;
     box-sizing: border-box;
     max-width: 500px;
+    cursor: pointer;
 
     &__core {
         display: none;

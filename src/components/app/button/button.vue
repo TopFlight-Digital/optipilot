@@ -1,8 +1,12 @@
 <script lang="ts" setup>
-defineProps({
+const props = defineProps({
     label: String,
     icon: String,
     wide: Boolean,
+    disabled: {
+        type: Boolean,
+        default: false,
+    },
     size: {
         type: String,
         default: `regular`,
@@ -25,13 +29,33 @@ defineProps({
         },
     },
 });
+
+const classes = computed(() => {
+    return {
+        [`button--${props.variant}`]: true,
+        [`button--${props.size}`]: true,
+        'button--wide': props.wide,
+        'button--icon-first': props.leader === `icon`,
+        'button--disabled': props.disabled,
+    };
+});
+
+const attrs = useAttrs();
+
+</script>
+
+<script lang="ts">
+export default {
+    inheritAttrs: false,
+};
 </script>
 
 <template>
     <button
         type="button"
         class="button"
-        :class="[`button--${variant}`, `button--${size}`, { 'button--wide': wide, 'button--icon-first': leader === `icon` }]"
+        :class="classes"
+        @click="!disabled && attrs.onClick?.()"
     >
         {{ label }}
         <app-icon
@@ -100,6 +124,11 @@ defineProps({
 
     &--icon-first {
         flex-direction: row-reverse;
+    }
+
+    &--disabled {
+        cursor: not-allowed;
+        filter: grayscale(1);
     }
 }
 </style>

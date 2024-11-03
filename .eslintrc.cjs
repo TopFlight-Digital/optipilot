@@ -4,11 +4,11 @@ module.exports = {
         es6: true,
     },
     extends: [
-        "plugin:vue/vue3-essential",
-        "plugin:@typescript-eslint/eslint-recommended",
-        "plugin:sonarjs/recommended",
-        "plugin:unicorn/recommended",
-        "plugin:storybook/recommended"
+        `plugin:vue/vue3-essential`,
+        `plugin:@typescript-eslint/eslint-recommended`,
+        `plugin:sonarjs/recommended`,
+        `plugin:unicorn/recommended`,
+        `plugin:storybook/recommended`,
     ],
     globals: {
         Atomics: `readonly`,
@@ -171,6 +171,7 @@ module.exports = {
             `warn`,
             {
                 "allowList": {
+                    "attrs": true,
                     "props": true,
                     "Ref": true,
                 },
