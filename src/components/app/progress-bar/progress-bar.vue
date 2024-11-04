@@ -4,16 +4,16 @@ import { computed } from 'vue';
 const props = defineProps({
     numerator: {
         type: Number,
-        reguired: true,
+        required: true,
     },
     denominator: {
         type: Number,
-        default: () => 100,
+        default: 100,
     },
 });
 
 const progressBarStyle = computed(() => ({
-    '--progress-bar-width': `${(props.numerator as number / props.denominator) * 100}%`,
+    '--progress-bar-width': `${(props.numerator / props.denominator) * 100}%`,
 }));
 </script>
 
