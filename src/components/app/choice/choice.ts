@@ -1,6 +1,6 @@
-interface ITEM {
-    label: String,
-    slug: String,
+interface Item {
+    label: string,
+    slug: string,
 };
 
-export type { ITEM };
+export type { Item };
