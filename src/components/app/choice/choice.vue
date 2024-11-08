@@ -1,18 +1,18 @@
 <script lang="ts" setup>
 import { FIELD_PROPS } from '../field/field';
-import type { ITEM } from './choice';
+import type { Item } from './choice';
 import circle from '@/icons/circle.svg';
 import check_circle from '@/icons/check-circle.svg';
 
 defineProps({
     ...FIELD_PROPS,
     items: {
-        type: Array<ITEM>,
+        type: Array<Item>,
         required: true,
     },
 });
 
-const model = defineModel<ITEM>();
+const model = defineModel<Item[`slug`]>();
 
 </script>
 
@@ -30,13 +30,13 @@ const model = defineModel<ITEM>();
         <div class="app-choice__items">
             <div
                 v-for="item in items"
-                :key="item.slug.toString()"
+                :key="item.slug"
                 class="app-choice__item"
-                @click="model = item"
+                @click="model = item.slug"
             >
                 <app-icon
                     class="app-choice__checkbox"
-                    :name="item.slug === model?.slug ? check_circle : circle"
+                    :name="item.slug === model ? check_circle : circle"
                 />
 
                 <app-copy
@@ -56,10 +56,11 @@ const model = defineModel<ITEM>();
         gap: 3rem;
         margin-top: 10px;
 
-        svg {
-            width: 1.5rem;
-            height: 1.5rem;
-        }
+    }
+
+    &__checkbox {
+        width: 1.5rem;
+        height: 1.5rem;
     }
 
     &__item {
