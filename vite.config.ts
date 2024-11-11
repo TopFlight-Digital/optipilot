@@ -7,6 +7,9 @@ import createSvgSpritePlugin from 'vite-plugin-svg-sprite';
 import Unfonts from 'unplugin-fonts/vite';
 
 export default defineConfig({
+    define: {
+        OPENAI_API_KEY: JSON.stringify(``),
+    },
     plugins: [
         vue(),
         Components({

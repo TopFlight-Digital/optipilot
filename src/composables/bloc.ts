@@ -1,3 +1,4 @@
+import { HypothesesPrompt, Hypothesis } from "@/bloc/hypotheses-prompt";
 import useVuelidate from "@vuelidate/core";
 import { required, url } from "@vuelidate/validators";
 
@@ -9,18 +10,6 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
     }
 
     const product = {
-        website: useStorage(
-            key`product.website`,
-            ``,
-        ),
-        goal: useStorage(
-            key`product.goal`,
-            ``,
-        ),
-        additionalGoals: useStorage(
-            key`product.additionalGoals`,
-            ``,
-        ),
         overview: useStorage(
             key`product.overview`,
             ``,
@@ -32,14 +21,6 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
     };
 
     const scan = {
-        page: useStorage(
-            key`scan.page`,
-            ``,
-        ),
-        name: useStorage(
-            key`scan.name`,
-            ``,
-        ),
         objective: useStorage(
             key`scan.objective`,
             ``,
@@ -54,26 +35,108 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
         ),
     };
 
+    const screenshotsToTake = ref(1);
+
     return {
         product: {
             ...product,
             $validation: useVuelidate({
-                website: { required, url },
-                goal: { required },
-                additionalGoals: {},
                 overview: { required },
-                data: { required },
+                data: {},
             }, product),
         },
         scan: {
             ...scan,
             $validation: useVuelidate({
-                page: { required, url },
-                name: { required },
+                name: {},
                 objective: { required },
-                data: { required },
+                data: {},
             }, scan),
         },
+        progress: {
+            numerator: ref(0),
+            denominator: computed(() => screenshotsToTake.value + 3),
+            // TODO: bring back increment w/ reassurance.
+        },
+        screenshots: ref<string[]>([]),
+        takeScreenshots() {
+            type State = {
+                top: number, step: number, pageHeight: number
+            }
+
+            const currentTab = toValue(tab);
+
+            return new Promise<void>(resolve => {
+                function takeScreenshot(first = false) {
+                    if (first) bloc.screenshots = [];
+
+                    chrome.scripting.executeScript<[first: boolean], Promise<State>>(
+                        {
+                            target: { tabId: currentTab.id! },
+                            func: async first => {
+                                const top = first
+                                    ? 0
+                                    : window.scrollY + window.innerHeight;
+
+                                window.scrollTo(0, top);
+                                await new Promise(resolve => setTimeout(resolve, 500));
+
+                                return { top, step: window.innerHeight, pageHeight: document.body.scrollHeight };
+                            },
+                            args: [first],
+                        },
+                        async injectionResults => {
+                            const { top, step, pageHeight } = injectionResults[0].result as State;
+
+                            if (first) {
+                                screenshotsToTake.value = Math.ceil(pageHeight / step);
+                            }
+
+                            if (chrome.runtime.lastError) {
+                                console.error(chrome.runtime.lastError.message);
+                                return;
+                            }
+
+                            const screenshot = await chrome.tabs.captureVisibleTab();
+
+                            bloc.screenshots.push(screenshot);
+                            bloc.progress.numerator += 1;
+
+                            if (top + step < pageHeight) {
+                                takeScreenshot();
+                            } else resolve();
+                        },
+                    );
+                }
+
+                takeScreenshot(true);
+            });
+        },
+        async submit() {
+            await bloc.takeScreenshots();
+
+            bloc.progress.numerator += 1;
+
+            const prompt = new HypothesesPrompt()
+                .withScreenshots(bloc.screenshots)
+                .withGoal(bloc.scan.objective)
+                .withOverview(bloc.product.overview);
+
+            bloc.progress.numerator += 1;
+
+            const results = await prompt.request();
+            bloc.hypotheses = results;
+            bloc.progress.numerator += 1;
+        },
+        hypotheses: useStorage<Hypothesis[]>(
+            key`hypotheses`,
+            [],
+        ),
+        hostFavicon: computed(() => toValue(tab).favIconUrl),
+        tab: useStorage(
+            key`tab`,
+            `website`,
+        ),
     };
 }
 
