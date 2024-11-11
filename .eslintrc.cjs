@@ -165,7 +165,6 @@ module.exports = {
         "no-useless-escape": `off`,
         "space-before-function-paren": [`error`, `never`],
         "arrow-parens": [`error`, `as-needed`],
-        curly: [`error`, `multi`],
         "no-switch-statements/no-switch": `warn`,
         "unicorn/prevent-abbreviations": [
             `warn`,
@@ -175,6 +174,7 @@ module.exports = {
                     "props": true,
                     "Ref": true,
                 },
+                checkFilenames: false,
             },
         ],
         "unicorn/prefer-top-level-await": `off`,

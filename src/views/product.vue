@@ -14,8 +14,8 @@ const { product } = useBloc();
         <div class="view__content">
             <div class="view__header">
                 <app-view-header
-                    headline="About your website"
-                    subline="Help me understand your website so I can scan and analyse it effectively."
+                    headline="About your product"
+                    subline="Help me understand your product so I can scan and analyse it effectively."
                 />
             </div>
 
@@ -23,30 +23,6 @@ const { product } = useBloc();
                 overrun="2rem"
             >
                 <div class="view__form">
-                    <app-input
-                        v-model="product.website"
-                        label="Website address"
-                        hint="Enter your website’s URL."
-                        type="text"
-                        :required="product.$validation.website.required"
-                    />
-
-                    <app-input
-                        v-model="product.goal"
-                        label="Primary goal"
-                        hint="What is the main purpose of your website?"
-                        type="text"
-                        :required="product.$validation.goal.required"
-                    />
-
-                    <app-input
-                        v-model="product.additionalGoals"
-                        label="Additional goals"
-                        hint="Does your website have any other goals?"
-                        type="text"
-                        :required="product.$validation.additionalGoals?.required"
-                    />
-
                     <app-input
                         v-model="product.overview"
                         label="Business details"

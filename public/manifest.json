@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Optipilot",
     "description": "",
-    "permissions": ["tabs"],
+    "permissions": ["activeTab", "<all_urls>", "scripting", "tabs"],
     "version": "1.0",
     "action": {
       "default_popup": "index.html",

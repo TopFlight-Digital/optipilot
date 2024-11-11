@@ -16,14 +16,20 @@ defineProps({
         required: true,
     },
 });
+
+const { hostFavicon } = useBloc();
 </script>
 
 <template>
     <div class="bloc-hypothesis">
-        <img
+        <div
             class="bloc-hypothesis__image"
-            src="https://s3-alpha-sig.figma.com/img/f10a/4220/74db58c8d23fc4016d3fddacf0f80d7c?Expires=1731888000&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=Wt8jB-SCsVtY-Zitk8hlvrAPRY8LTMB8-rxDoWX2MvKUt1DmArxTz4O~XnX4WeQ0b5guQBYydY6Ui5k-OUcC1LouGZKdu0NqCw6lVvN6SOSlexyXCkQJijxy0oGz6odg9FTbDO0cpBEbDV6qwi6oOMUcZICDmsCMO2Nb4d~yPGbuNbNW~YbDLkHT6NotswLGs1xX5LG2KJBwqP~BpN56jAyp0-Dm7wqeQ2ry2mIo6m9Q1yjkNd~gtk~7qLclWHjITMkx40RcY0l2FvL2mfi3I10DRaRbZhuFNJGLma8saD0v847J1EapS2UDRXCbiXm1ivxQNNvteWfh8AqGf5rmOg__"
-        />
+            :style="`--background-image: url(${hostFavicon})`"
+        >
+            <img
+                :src=hostFavicon
+            />
+        </div>
 
         <div class="bloc-hypothesis__content">
             <app-copy
@@ -76,5 +82,31 @@ defineProps({
     &__content {
         margin-right: 2.5rem;
     }
+}
+
+.bloc-hypothesis__image::before {
+    background-image: var(--background-image);
+    background-position: center center;
+    background-size: 200%;
+    content: '';
+    inset: 0;
+    position: absolute;
+    filter: blur(10px) brightness(.5);
+    opacity: .5;
+}
+
+.bloc-hypothesis__image img {
+    max-width: 100%;
+    height: 100%;
+    z-index: 1;
+    position: relative;
+    object-fit: scale-down;
+    object-position: center center;
+}
+
+.bloc-hypothesis__image {
+    position: relative;
+    overflow: hidden;
+    padding: .5rem;
 }
 </style>

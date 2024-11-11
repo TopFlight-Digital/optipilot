@@ -13,7 +13,7 @@ const props = defineProps({
 });
 
 const progressBarStyle = computed(() => ({
-    '--progress-bar-width': `${(props.numerator / props.denominator) * 100}%`,
+    '--progress-indicator-width': `${(Math.min(props.numerator / props.denominator, 1)) * 100}%`,
 }));
 </script>
 
@@ -28,15 +28,20 @@ const progressBarStyle = computed(() => ({
 
 <style lang="scss">
 .app-progress-bar {
-    border: 1px solid var(--color-edge-primary);
-    background: var(--color-backdrop-primary);
+    --progress-bar-height: 12px;
+    --progress-indicator-height: calc(var(--progress-bar-height) - 2px);
+
+    height: var(--progress-bar-height);
+    border: 1px solid var(--color-47);
+    background: var(--color-0e);
     border-radius: 24px;
 
     &__indicator {
-        background: var(--color-primary);
-        width: var(--progress-bar-width);
-        height: 10px;
+        background: var(--color-ab);
+        width: var(--progress-indicator-width);
+        height: var(--progress-indicator-height);
         border-radius: 20px;
+        transition: width .3s;
     }
 }
 </style>

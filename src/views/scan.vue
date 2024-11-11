@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import backwards from '@/icons/backwards.svg';
 import forward from '@/icons/forward.svg';
-import useVuelidate from '@vuelidate/core';
-import { required } from '@vuelidate/validators';
 
 const emit = defineEmits<{
     (event: `back`): void
@@ -28,22 +26,6 @@ const { scan } = useBloc();
             >
                 <div class="view__form">
                     <app-input
-                        v-model="scan.page"
-                        label="Web page address"
-                        hint="Enter the URL of the web page you want to scan."
-                        type="text"
-                        :required="scan.$validation.page.required"
-                    />
-
-                    <app-input
-                        v-model="scan.name"
-                        label="Scan name"
-                        hint="Name your scan (this will help you identify it later)."
-                        type="text"
-                        :required="scan.$validation.name.required"
-                    />
-
-                    <app-input
                         v-model="scan.objective"
                         label="Objective"
                         hint="What are your goals for this scan? (e.g., improve usability, increase conversions)."
@@ -51,13 +33,6 @@ const { scan } = useBloc();
                         :required="scan.$validation.objective.required"
                     />
 
-                    <app-input
-                        v-model="scan.overview"
-                        label="Web page information"
-                        hint="Any additional details about the web page? (e.g., page purpose, audience)."
-                        type="textarea"
-                        :required="scan.$validation.overview?.required"
-                    />
 
                     <app-input
                         v-model="scan.data"
