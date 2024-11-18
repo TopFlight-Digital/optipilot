@@ -1,85 +1,24 @@
 <script lang="ts" setup>
-import forward from '@/icons/forward.svg';
+import HypothesesView from '@/views/hypotheses.vue';
+import FeedbackView from '@/views/feedback.vue';
 
-const emit = defineEmits<{
-    (event: `proceed`): void
-}>();
-
-const { hypotheses } = useBloc();
-
+const view = ref(`hypotheses`);
+const { submitFeedback } = useBloc();
 </script>
 
 <template>
-    <div class="view">
-        <div class="view__content">
-            <div class="view__header">
-                <app-view-header
-                    headline="Analysis results"
-                    subline="Discover how to improve your website through the proposed changes below."
-                />
-            </div>
+    <hypotheses-view
+        v-if="view === `hypotheses`"
+        @edit="view = `feedback`"
+    />
 
-            <app-scroll-view
-                overrun="2rem"
-            >
-                <div class="view__items">
-                    <bloc-hypothesis
-                        v-for="(item, index) in hypotheses"
-                        :key="item.title"
-                        :index="index + 1"
-                        :title="item.title"
-                        :subtitle="item.description"
-                    />
-                </div>
-            </app-scroll-view>
-        </div>
-
-
-        <div class="view__navigation">
-            <app-button
-                label="Edit input information"
-                :icon=forward
-                variant="secondary"
-                wide
-            />
-        </div>
-    </div>
+    <feedback-view
+        v-else-if="view === `feedback`"
+        @back="view = `hypotheses`"
+        @submit="submitFeedback"
+    />
 </template>
 
 <style lang="scss" scoped>
-.view {
-    display: grid;
-    height: 100%;
-
-    &__content {
-        display: grid;
-        gap: 40.5px;
-        height: 100%;
-        overflow: hidden;
-        padding-inline: var(--container-padding);
-    }
-
-    &__header {
-        display: grid;
-        gap: 13px;
-        padding-right: 1.5rem;
-    }
-
-    &__items {
-        display: grid;
-        gap: 1.5rem;
-    }
-
-    &__navigation {
-        padding-top: 2.5rem;
-        padding-bottom: 1.75rem;
-        background: #000;
-        padding-inline: var(--container-padding);
-        display: flex;
-        flex-direction: column;
-        gap: .75rem;
-        align-items: center;
-    }
-}
 </style>
 

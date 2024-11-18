@@ -19,6 +19,8 @@ const copy = computed(() => {
     }
 });
 
+const tab = useTab();
+
 </script>
 
 <template>
@@ -34,7 +36,7 @@ const copy = computed(() => {
                 type="Title/h3"
                 color="cd"
                 class="view__subheader"
-                v-text="scan.page"
+                v-text="tab.url"
             />
 
             <app-copy

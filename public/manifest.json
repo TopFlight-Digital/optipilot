@@ -3,6 +3,7 @@
     "name": "Optipilot",
     "description": "",
     "permissions": ["activeTab", "<all_urls>", "scripting", "tabs"],
+    "host_permissions": ["<all_urls>"],
     "version": "1.0",
     "action": {
       "default_popup": "index.html",
