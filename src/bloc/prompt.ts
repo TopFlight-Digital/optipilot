@@ -1,7 +1,7 @@
-import { ChatCompletionContentPartImage } from "openai/resources/index.mjs";
+import { ImageURLContentBlock } from "openai/resources/beta/threads/messages.mjs";
 
 export abstract class Prompt {
-    public toJpeg(url: string): ChatCompletionContentPartImage {
+    public toJpeg(url: string): ImageURLContentBlock {
         return {
             "type": `image_url`,
             "image_url": {

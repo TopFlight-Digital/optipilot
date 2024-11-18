@@ -1,8 +1,8 @@
 import { DEFAULT_HYPOTHESES_CAP, DEFAULT_MODEL, DESERIALIZABLE_OUTPUT_PROMPT } from "@/constants";
 import OpenAI from "openai";
-import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
-import { ChatCompletion } from "openai/src/resources/index.js";
 import { Prompt } from "./prompt";
+import { ThreadCreateParams } from "openai/resources/beta/index.mjs";
+import { dataUrlToFileInstance } from "./upload";
 
 export type Hypothesis = {
     title: string;
@@ -37,9 +37,9 @@ export class HypothesesPrompt extends Prompt {
 
     private goal?: string;
 
-    private additionalGoals?: string;
-
     private overview?: string;
+
+    private threadId?: string;
 
     public withScreenshots(data: typeof this.screenshots) {
         this.screenshots = data;
@@ -54,14 +54,6 @@ export class HypothesesPrompt extends Prompt {
         return this;
     }
 
-    public withAdditionalGoals(value: string) {
-        if (value) {
-            this.additionalGoals = value;
-        }
-
-        return this;
-    }
-
     public withOverview(value: string) {
         if (value) {
             this.overview = value;
@@ -70,70 +62,127 @@ export class HypothesesPrompt extends Prompt {
         return this;
     }
 
-    public withProductData() {
-        return this;
-    }
+    private async messages(): Promise<ThreadCreateParams.Message[]> {
+        const fileIds = [];
 
-    public withSubject() {
-        return this;
-    }
+        for (const screenshot of this.screenshots) {
+            const file = await dataUrlToFileInstance(screenshot);
 
-    private get messages(): ChatCompletionMessageParam[] {
-        const goalMessages = this.goal || this.additionalGoals ? [
-            system`Now the user is going to provide the goal(s) of their product:`,
-            user`${[this.goal, this.additionalGoals].filter(Boolean).join(`\n`)}`,
-        ] as const : [];
+            const response = await this.client.files.create({
+                file,
+                purpose: `vision`,
+            });
 
-        const overviewMessages = this.overview ? [
-            system`Now the user is going to provide the overview of their product:`,
-            user`${this.overview}`,
-        ] as const : [];
+            fileIds.push(response.id);
+        }
 
         const screenshotMessages = [
-            system`The user is going to provide screenshots of the problematic subpage of their product:`,
+            user`Here are screenshots of "the Page" in my product. Please list all the features you see describe their colors, appearance, contrast ratio and size:`,
             {
                 role: `user`,
-                content: this.screenshots.map(this.toJpeg),
+                content: fileIds.map(fileId => ({
+                    type: `image_file` as const,
+                    image_file: {
+                        file_id: fileId,
+                    },
+                })),
             } as const,
         ];
 
-        const endgamePrompt = system`Come up with up to ${this.cap} ideas for how to improve site to achieve the provided goal, based on the information and screenshots provided.`;
-
         return [
-            system`
-                Return what user asks for in a JSON of the following schema:
-
-                type Hypotheses = {
-                    title: string;
-                    type: 'ab-test' | 'painted-door';
-                    description: string;
-                }[]
-            `,
-
-            DESERIALIZABLE_OUTPUT_PROMPT,
-
-            ...goalMessages,
-            ...overviewMessages,
             ...screenshotMessages,
-
-            endgamePrompt,
         ];
     }
 
-    private process(data: ChatCompletion): Hypothesis[] {
+    private process(data: OpenAI.Beta.Threads.Runs.Run): Hypothesis[] {
         const { choices: [choice] } = data;
         return JSON.parse(choice.message.content!);
     }
 
-    public async request(): Promise<Hypothesis[]> {
-        const messages = this.messages;
+    public async request(message?: string): Promise<Hypothesis[]> {
+        let hypotheses: Hypothesis[] = [];
 
-        const response = await this.client.chat.completions.create({
-            messages,
-            model: this.model,
-        });
+        if (this.threadId) {
+            const response = await this.client.beta.threads.runs.create(
+                this.threadId,
+                {
+                    model: this.model,
+                    assistant_id: `asst_epLX3d0mculRUP4LVL1FYexo`,
+                    additional_messages: [
+                        user`Now please return new hypotheses based on feedback provided below. Change only the ones that my feedback pertains to. Leave others intact but still return them in the same order as before.
 
-        return this.process(response);
+                        Feedback:
+                        ${message}
+                        OPTIPILOT!`,
+                    ],
+                    stream: true,
+                },
+            );
+
+            for await (const message of response) {
+                console.log(`message3`, message);
+                if (message.event === `thread.message.completed`) {
+                    hypotheses = JSON.parse(message.data.content[0].text.value) as Hypothesis[];
+                }
+            }
+
+        } else {
+            const messages = await this.messages();
+
+            const stream = await this.client.beta.threads.createAndRun({
+                assistant_id: `asst_epLX3d0mculRUP4LVL1FYexo`,
+                thread: {
+                    messages,
+                },
+                model: this.model,
+                stream: true,
+            });
+
+            for await (const message of stream) {
+                if (message.event === `thread.created`) {
+                    this.threadId = message.data.id;
+                }
+                console.log(`message1`, message);
+            }
+
+            const goalMessages = this.goal ? [
+                user`The goal of my product: ${this.goal}`,
+            ] as const : [];
+
+            const overviewMessages = this.overview ? [
+                user`Overview of my product: ${this.overview}`,
+            ] as const : [];
+
+            const initialMessages = [
+                ...goalMessages,
+                ...overviewMessages,
+            ];
+
+            const response = await this.client.beta.threads.runs.create(
+                this.threadId!,
+                {
+                    model: this.model,
+                    assistant_id: `asst_epLX3d0mculRUP4LVL1FYexo`,
+                    additional_messages: [
+                        ...initialMessages,
+                        user`Come up with up to ${this.cap} ideas for how to improve site to achieve the provided goal, based on the information and screenshots provided. In their descriptions try to — refer to specific place on "the Page" like 'above' or 'bottom' etc — if applicable for given idea. OPTIPILOT!`,
+                    ],
+                    stream: true,
+                },
+            );
+
+            for await (const message of response) {
+                console.log(`message2`, message);
+                if (message.event === `thread.message.completed`) {
+                    hypotheses = JSON.parse(message.data.content[0].text.value) as Hypothesis[];
+                }
+
+            }
+        }
+
+        console.log(`hypotheses`, hypotheses);
+
+        return hypotheses;
     }
 
     private get model() {

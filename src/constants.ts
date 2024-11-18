@@ -30,3 +30,20 @@ export const DESERIALIZABLE_OUTPUT_PROMPT = {
     content: `Returning your response, omit markdown tokens`.trim(),
 } as const satisfies ChatCompletionMessageParam;
 
+export const DEVICE_TYPE_OPTIONS = [
+    {
+        slug: `mobile`,
+        label: `Mobile`,
+    },
+    {
+        slug: `desktop`,
+        label: `Desktop`,
+    },
+] as const;
+
+export type DeviceType = typeof DEVICE_TYPE_OPTIONS[number][`slug`];
+
+export const BREAKPOINTS = {
+    mobile: 360,
+    desktop: 1024,
+} as const satisfies Record<DeviceType, number>;

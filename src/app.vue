@@ -23,14 +23,6 @@ useChromeExtension(tab => {
     initBloc(tab);
 });
 
-const submitting = ref(false);
-
-async function submit() {
-    submitting.value = true;
-    await bloc.submit();
-    submitting.value = false;
-}
-
 const tab = ref<typeof tabs[number][`slug`]>(`website`);
 
 watchDeep(
@@ -49,7 +41,7 @@ watchDeep(
     <backdrop-light />
 
     <div class="app__container">
-        <template v-if="!submitting">
+        <template v-if="!bloc.pending">
             <app-tabs
                 v-model="tab"
                 class="app__nav"
@@ -70,7 +62,7 @@ watchDeep(
                     <scan-view
                         v-else
                         @back="step = `product`"
-                        @proceed="submit"
+                        @proceed="bloc.submit"
                     />
                 </template>
 

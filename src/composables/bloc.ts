@@ -1,4 +1,5 @@
 import { HypothesesPrompt, Hypothesis } from "@/bloc/hypotheses-prompt";
+import { BREAKPOINTS, DEVICE_TYPE_OPTIONS, DeviceType } from "@/constants";
 import useVuelidate from "@vuelidate/core";
 import { required, url } from "@vuelidate/validators";
 
@@ -33,6 +34,14 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
             key`scan.data`,
             [],
         ),
+        deviceType: useStorage<DeviceType>(
+            key`scan.deviceType`,
+            `desktop`,
+        ),
+    };
+
+    const feedback = {
+        message: ref(``),
     };
 
     const screenshotsToTake = ref(1);
@@ -48,10 +57,22 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
         scan: {
             ...scan,
             $validation: useVuelidate({
-                name: {},
                 objective: { required },
                 data: {},
+                deviceType: {
+                    required,
+                    oneOf(value: string) {
+                        // @ts-expect-error — `includes` typing too strict.
+                        return DEVICE_TYPE_OPTIONS.map(({ slug }) => slug).includes(value);
+                    },
+                },
             }, scan),
+        },
+        feedback: {
+            ...feedback,
+            $validation: useVuelidate({
+                message: { required },
+            }, feedback),
         },
         progress: {
             numerator: ref(0),
@@ -59,12 +80,10 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
             // TODO: bring back increment w/ reassurance.
         },
         screenshots: ref<string[]>([]),
-        takeScreenshots() {
+        takeScreenshots(currentTab: chrome.tabs.Tab) {
             type State = {
                 top: number, step: number, pageHeight: number
             }
-
-            const currentTab = toValue(tab);
 
             return new Promise<void>(resolve => {
                 function takeScreenshot(first = false) {
@@ -112,22 +131,44 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
                 takeScreenshot(true);
             });
         },
+
+        prompt: new HypothesesPrompt(),
+        pending: ref(false),
+
         async submit() {
-            await bloc.takeScreenshots();
+            bloc.pending = true;
+            bloc.progress.numerator = 1;
+
+            const currentTab = toValue(tab);
+            resizeCurrentTab(BREAKPOINTS[bloc.scan.deviceType], window.screen.availHeight);
+
+            await bloc.takeScreenshots(currentTab);
 
             bloc.progress.numerator += 1;
 
-            const prompt = new HypothesesPrompt()
+            bloc.prompt
                 .withScreenshots(bloc.screenshots)
                 .withGoal(bloc.scan.objective)
                 .withOverview(bloc.product.overview);
 
             bloc.progress.numerator += 1;
 
-            const results = await prompt.request();
+            const results = await bloc.prompt.request();
             bloc.hypotheses = results;
             bloc.progress.numerator += 1;
+            bloc.pending = false;
         },
+        async submitFeedback() {
+            bloc.pending = true;
+            bloc.progress.numerator = 1;
+
+            const results = await bloc.prompt.request(bloc.feedback.message);
+
+            bloc.hypotheses = results;
+            bloc.progress.numerator += 1;
+            bloc.pending = false;
+        },
+
         hypotheses: useStorage<Hypothesis[]>(
             key`hypotheses`,
             [],
@@ -163,4 +204,21 @@ type Bloc = ReturnType<typeof initBloc>;
 
 export function useBloc() {
     return inject(`bloc`) as Bloc;
+}
+
+
+function resizeCurrentTab(width: number, height: number) {
+    return new Promise<void>(resolve => {
+
+        chrome.windows.getCurrent(async function(window) {
+            const updateInfo = {
+                width,
+                height,
+                focused: false,
+            };
+
+            await chrome.windows.update(window.id!, updateInfo);
+            resolve();
+        });
+    });
 }
