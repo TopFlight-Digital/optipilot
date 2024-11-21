@@ -140,7 +140,7 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
             bloc.progress.numerator = 1;
 
             const currentTab = toValue(tab);
-            resizeCurrentTab(BREAKPOINTS[bloc.scan.deviceType], window.screen.availHeight);
+            resizeCurrentTab(BREAKPOINTS[bloc.scan.deviceType](), window.screen.availHeight);
 
             await bloc.takeScreenshots(currentTab);
 
