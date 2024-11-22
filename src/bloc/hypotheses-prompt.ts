@@ -3,6 +3,8 @@ import OpenAI from "openai";
 import { Prompt } from "./prompt";
 import { ThreadCreateParams } from "openai/resources/beta/index.mjs";
 import { dataUrlToFileInstance } from "./upload";
+import { cluster } from "radash";
+import { ImageFileContentBlock, ImageURLContentBlock } from "openai/resources/beta/threads/messages.mjs";
 
 export type Hypothesis = {
     title: string;
@@ -27,7 +29,16 @@ function user(strings: TemplateStringsArray, ...values: any[]) {
     } as const;
 }
 
+type RecordProgress = (message?: string) => void;
+
 export class HypothesesPrompt extends Prompt {
+    private recordProgress: RecordProgress;
+
+    constructor(recordProgress: RecordProgress) {
+        super();
+        this.recordProgress = recordProgress;
+    }
+
     private client = new OpenAI({
         apiKey: OPENAI_API_KEY,
         dangerouslyAllowBrowser: true,
@@ -63,30 +74,37 @@ export class HypothesesPrompt extends Prompt {
     }
 
     private async messages(): Promise<ThreadCreateParams.Message[]> {
-        const fileIds = [];
-
-        for (const screenshot of this.screenshots) {
+        const fileIds = await Promise.all(this.screenshots.map(async screenshot => {
             const file = await dataUrlToFileInstance(screenshot);
+            this.recordProgress();
 
             const response = await this.client.files.create({
                 file,
                 purpose: `vision`,
             });
 
-            fileIds.push(response.id);
-        }
+            this.recordProgress();
+            return response.id;
+        }));
+
+        this.recordProgress();
+
+        const fileBatches: ImageFileContentBlock[][] = cluster(
+            fileIds.map(id => ({
+                type: `image_file` as const,
+                image_file: {
+                    file_id: id,
+                },
+            })),
+            10,
+        );
 
         const screenshotMessages = [
             user`Here are screenshots of "the Page" in my product. Please list all the features you see describe their colors, appearance, contrast ratio and size:`,
-            {
-                role: `user`,
-                content: fileIds.map(fileId => ({
-                    type: `image_file` as const,
-                    image_file: {
-                        file_id: fileId,
-                    },
-                })),
-            } as const,
+            ...fileBatches.map(content => ({
+                role: `user` as const,
+                content,
+            })),
         ];
 
         return [
@@ -94,15 +112,13 @@ export class HypothesesPrompt extends Prompt {
         ];
     }
 
-    private process(data: OpenAI.Beta.Threads.Runs.Run): Hypothesis[] {
-        const { choices: [choice] } = data;
-        return JSON.parse(choice.message.content!);
-    }
-
     public async request(message?: string): Promise<Hypothesis[]> {
         let hypotheses: Hypothesis[] = [];
+        this.recordProgress();
 
         if (this.threadId) {
+            this.recordProgress();
+
             const response = await this.client.beta.threads.runs.create(
                 this.threadId,
                 {
@@ -119,8 +135,13 @@ export class HypothesesPrompt extends Prompt {
                 },
             );
 
+            this.recordProgress();
+            let streams = 0;
+
             for await (const message of response) {
                 console.log(`message3`, message);
+                if (!(++streams % 25)) this.recordProgress();
+
                 if (message.event === `thread.message.completed`) {
                     hypotheses = JSON.parse(message.data.content[0].text.value) as Hypothesis[];
                 }
@@ -128,6 +149,7 @@ export class HypothesesPrompt extends Prompt {
 
         } else {
             const messages = await this.messages();
+            this.recordProgress(`Analysing data for tailored improvements`);
 
             const stream = await this.client.beta.threads.createAndRun({
                 assistant_id: `asst_epLX3d0mculRUP4LVL1FYexo`,
@@ -138,7 +160,12 @@ export class HypothesesPrompt extends Prompt {
                 stream: true,
             });
 
+            this.recordProgress();
+            let streams = 0;
+
             for await (const message of stream) {
+                if (!(++streams % 25)) this.recordProgress();
+
                 if (message.event === `thread.created`) {
                     this.threadId = message.data.id;
                 }
@@ -158,6 +185,8 @@ export class HypothesesPrompt extends Prompt {
                 ...overviewMessages,
             ];
 
+            this.recordProgress(`Crafting smarter suggestions for you`);
+
             const response = await this.client.beta.threads.runs.create(
                 this.threadId!,
                 {
@@ -171,16 +200,23 @@ export class HypothesesPrompt extends Prompt {
                 },
             );
 
+            this.recordProgress();
+            streams = 0;
+
             for await (const message of response) {
+                if (!(++streams % 25)) this.recordProgress();
+
                 console.log(`message2`, message);
                 if (message.event === `thread.message.completed`) {
                     hypotheses = JSON.parse(message.data.content[0].text.value) as Hypothesis[];
                 }
-
             }
+
+            this.recordProgress();
         }
 
         console.log(`hypotheses`, hypotheses);
+        this.recordProgress();
 
         return hypotheses;
     }
