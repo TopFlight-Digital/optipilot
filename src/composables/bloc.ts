@@ -75,9 +75,35 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
             }, feedback),
         },
         progress: {
+            step: 1,
+            message: ref(``),
             numerator: ref(0),
-            denominator: computed(() => screenshotsToTake.value + 3),
-            // TODO: bring back increment w/ reassurance.
+            denominator: computed(() => Math.min(100, screenshotsToTake.value * 20)),
+
+            tick(message?: string) {
+                const { numerator, denominator } = bloc.progress;
+                if (numerator >= denominator - 2) {
+                    bloc.progress.step *= .6;
+                    bloc.progress.numerator += bloc.progress.step;
+                } else {
+                    bloc.progress.numerator = Math.min(
+                        numerator + bloc.progress.step,
+                        denominator - 2,
+                    );
+                }
+
+                if (message) bloc.progress.message = message;
+            },
+
+            finish() {
+                bloc.progress.numerator = bloc.progress.denominator;
+            },
+
+            reset(message: string) {
+                bloc.progress.step = 1;
+                bloc.progress.message = message;
+                bloc.progress.numerator = 0;
+            },
         },
         screenshots: ref<string[]>([]),
         takeScreenshots(currentTab: chrome.tabs.Tab) {
@@ -119,7 +145,7 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
                             const screenshot = await chrome.tabs.captureVisibleTab();
 
                             bloc.screenshots.push(screenshot);
-                            bloc.progress.numerator += 1;
+                            bloc.progress.tick();
 
                             if (top + step < pageHeight) {
                                 takeScreenshot();
@@ -132,40 +158,44 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
             });
         },
 
-        prompt: new HypothesesPrompt(),
+        prompt: new HypothesesPrompt((message?: string) => bloc.progress.tick(message)),
         pending: ref(false),
 
         async submit() {
             bloc.pending = true;
-            bloc.progress.numerator = 1;
+            bloc.progress.reset(`Gathering screenshots`);
 
             const currentTab = toValue(tab);
             resizeCurrentTab(BREAKPOINTS[bloc.scan.deviceType](), window.screen.availHeight);
 
             await bloc.takeScreenshots(currentTab);
 
-            bloc.progress.numerator += 1;
+            bloc.progress.tick();
 
             bloc.prompt
                 .withScreenshots(bloc.screenshots)
                 .withGoal(bloc.scan.objective)
                 .withOverview(bloc.product.overview);
 
-            bloc.progress.numerator += 1;
+            bloc.progress.tick();
 
             const results = await bloc.prompt.request();
-            bloc.hypotheses = results;
-            bloc.progress.numerator += 1;
-            bloc.pending = false;
+
+            bloc.progress.finish();
+
+            setTimeout(() => {
+                bloc.hypotheses = results;
+                bloc.pending = false;
+            }, 300);
         },
         async submitFeedback() {
             bloc.pending = true;
-            bloc.progress.numerator = 1;
+            bloc.progress.reset(`Gathering feedback`);
 
             const results = await bloc.prompt.request(bloc.feedback.message);
 
+            bloc.progress.finish();
             bloc.hypotheses = results;
-            bloc.progress.numerator += 1;
             bloc.pending = false;
         },
 

@@ -29,6 +29,7 @@
     "openai": "^4.71.1",
     "overlayscrollbars": "^2.10.0",
     "overlayscrollbars-vue": "^0.5.9",
+    "radash": "^12.1.0",
     "unplugin-fonts": "^1.1.1",
     "vue": "^3.5.12"
   },

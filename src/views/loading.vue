@@ -4,20 +4,7 @@ const emit = defineEmits<{
     (event: `proceed`): void
 }>();
 
-const { scan, progress } = useBloc();
-
-const progressCopyMap = new Map([
-    [.5, `Analysing data for tailored improvements`],
-    [1, `Crafting smarter suggestions for you`],
-]);
-
-const copy = computed(() => {
-    for (const [threshold, text] of progressCopyMap) {
-        if (progress.numerator / progress.denominator <= threshold) {
-            return text;
-        }
-    }
-});
+const { progress } = useBloc();
 
 const tab = useTab();
 
@@ -42,7 +29,7 @@ const tab = useTab();
             <app-copy
                 type="Title/h4"
                 color="cd"
-                v-text="copy"
+                v-text="progress.message"
             />
 
             <app-progress-bar
