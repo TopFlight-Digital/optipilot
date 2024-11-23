@@ -66,6 +66,7 @@ const { hostFavicon } = useBloc();
     padding: .5rem;
     gap: 10px;
     border-radius: .75rem;
+    cursor: pointer;
 
     &__image {
         width: 94px;

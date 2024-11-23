@@ -15,12 +15,11 @@ const { scan } = useBloc();
 <template>
     <div class="view">
         <div class="view__content">
-            <div class="view__header">
-                <app-view-header
-                    headline="About the web page"
-                    subline="Provide details about the specific web page you'd like me to analyse."
-                />
-            </div>
+            <app-view-header
+                class="view__header"
+                headline="About the web page"
+                subline="Provide details about the specific web page you'd like me to analyse."
+            />
 
             <app-scroll-view
                 overrun="2rem"
@@ -98,12 +97,6 @@ const { scan } = useBloc();
         height: 100%;
         overflow: hidden;
         padding-inline: var(--container-padding);
-    }
-
-    &__header {
-        display: grid;
-        gap: 13px;
-        padding-right: 1.5rem;
     }
 
     &__form {

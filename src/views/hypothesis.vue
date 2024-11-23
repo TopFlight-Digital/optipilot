@@ -1,36 +1,48 @@
 <script lang="ts" setup>
+import download from '@/icons/download.svg';
 import backwards from '@/icons/backwards.svg';
 
+const props = defineProps({
+    index: {
+        type: Number,
+        required: true,
+    },
+});
+
 const emit = defineEmits<{
-    (event: `back`): void
-    (event: `submit`): void
+    (event: `edit`): void
 }>();
 
-const { feedback } = useBloc();
+const { hypotheses } = useBloc();
+
+const item = computed(() => {
+    return hypotheses[props.index];
+});
+
+function downloadProposal() {}
 
 </script>
 
 <template>
     <div class="view">
         <div class="view__content">
-            <app-view-header
-                class="view__header"
-                headline="Feedback"
-                subline="Tell me about what you would like changed in these proposals."
-            />
+            <div class="view__header">
+                <app-copy
+                    class="view__preheading"
+                    type="Button 2/label 1"
+                    v-text="`Proposal ${index + 1}`"
+                />
+
+                <app-view-header
+                    :headline="item.title"
+                    :subline="item.description"
+                />
+            </div>
 
             <app-scroll-view
                 overrun="2rem"
             >
-                <div class="view__form">
-                    <app-input
-                        v-model="feedback.message"
-                        label="Feedback"
-                        hint="Tell me what I should amend in my proposals."
-                        type="textarea"
-                        :required="!!feedback.$validation.message.required"
-                    />
-                </div>
+                <div class="view__items" />
             </app-scroll-view>
         </div>
 
@@ -46,11 +58,11 @@ const { feedback } = useBloc();
                 />
 
                 <app-button
-                    label="Submit"
+                    label="Download proposal"
+                    :icon=download
                     variant="primary"
                     wide
-                    :disabled="feedback.$validation.$invalid"
-                    @click="emit(`submit`)"
+                    @click="downloadProposal"
                 />
             </div>
         </div>
@@ -62,6 +74,15 @@ const { feedback } = useBloc();
     display: grid;
     height: 100%;
 
+    &__preheading {
+        margin-bottom: .5rem;
+    }
+
+    &__header {
+        border-bottom: 1px solid var(--color-47);
+        padding-bottom: 1.25rem;
+    }
+
     &__content {
         display: grid;
         gap: 40.5px;
@@ -70,9 +91,10 @@ const { feedback } = useBloc();
         padding-inline: var(--container-padding);
     }
 
-    &__form {
+
+    &__items {
         display: grid;
-        gap: 25px;
+        gap: 1.5rem;
     }
 
     &__navigation {
