@@ -166,7 +166,12 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
             bloc.progress.reset(`Gathering screenshots`);
 
             const currentTab = toValue(tab);
-            resizeCurrentTab(BREAKPOINTS[bloc.scan.deviceType](), window.screen.availHeight);
+
+            resizeCurrentTab(
+                // @ts-ignore
+                BREAKPOINTS[bloc.scan.deviceType](),
+                window.screen.availHeight,
+            );
 
             await bloc.takeScreenshots(currentTab);
 
