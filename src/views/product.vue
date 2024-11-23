@@ -12,12 +12,11 @@ const { product } = useBloc();
 <template>
     <div class="view">
         <div class="view__content">
-            <div class="view__header">
-                <app-view-header
-                    headline="About your product"
-                    subline="Help me understand your product so I can scan and analyse it effectively."
-                />
-            </div>
+            <app-view-header
+                class="view__header"
+                headline="About your product"
+                subline="Help me understand your product so I can scan and analyse it effectively."
+            />
 
             <app-scroll-view
                 overrun="2rem"
@@ -77,12 +76,6 @@ const { product } = useBloc();
         height: 100%;
         overflow: hidden;
         padding-inline: var(--container-padding);
-    }
-
-    &__header {
-        display: grid;
-        gap: 13px;
-        padding-right: 1.5rem;
     }
 
     &__form {

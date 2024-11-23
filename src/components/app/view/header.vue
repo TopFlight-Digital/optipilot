@@ -10,7 +10,7 @@ defineProps({
 </script>
 
 <template>
-    <div class="view__header">
+    <div class="app-view-header">
         <app-copy
             v-if="headline"
             type="Title/h1"
@@ -26,3 +26,11 @@ defineProps({
         />
     </div>
 </template>
+
+<style lang="scss" scoped>
+.app-view-header {
+    display: grid;
+    gap: 13px;
+    padding-right: 1.5rem;
+}
+</style>

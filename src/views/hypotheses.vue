@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import forward from '@/icons/forward.svg';
+import HypothesisView from '@/views/hypothesis.vue';
 
 const emit = defineEmits<{
     (event: `edit`): void
@@ -7,17 +8,21 @@ const emit = defineEmits<{
 
 const { hypotheses } = useBloc();
 
+const hypothesisIndex = ref<number>();
+
 </script>
 
 <template>
-    <div class="view">
+    <div
+        v-if="hypothesisIndex === undefined"
+        class="view"
+    >
         <div class="view__content">
-            <div class="view__header">
-                <app-view-header
-                    headline="Analysis results"
-                    subline="Discover how to improve your website through the proposed changes below."
-                />
-            </div>
+            <app-view-header
+                class="view__header"
+                headline="Analysis results"
+                subline="Discover how to improve your website through the proposed changes below."
+            />
 
             <app-scroll-view
                 overrun="2rem"
@@ -29,6 +34,7 @@ const { hypotheses } = useBloc();
                         :index="index + 1"
                         :title="item.title"
                         :subtitle="item.description"
+                        @click="hypothesisIndex = index"
                     />
                 </div>
             </app-scroll-view>
@@ -45,6 +51,12 @@ const { hypotheses } = useBloc();
             />
         </div>
     </div>
+
+    <hypothesis-view
+        v-else
+        :index="hypothesisIndex"
+        @back="hypothesisIndex = undefined"
+    />
 </template>
 
 <style lang="scss" scoped>
@@ -58,12 +70,6 @@ const { hypotheses } = useBloc();
         height: 100%;
         overflow: hidden;
         padding-inline: var(--container-padding);
-    }
-
-    &__header {
-        display: grid;
-        gap: 13px;
-        padding-right: 1.5rem;
     }
 
     &__items {
