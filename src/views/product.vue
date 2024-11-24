@@ -29,14 +29,6 @@ const { product } = useBloc();
                         type="textarea"
                         :required="product.$validation.overview.required"
                     />
-
-                    <app-input
-                        v-model="product.data"
-                        label="Upload website data"
-                        hint="Upload qualitative and/or quantitative data that show how users interact with your website. Upload as CSV, Excel, PDF, JPG, PNG or MP3."
-                        type="file"
-                        :required="product.$validation.data.required"
-                    />
                 </div>
             </app-scroll-view>
         </div>
