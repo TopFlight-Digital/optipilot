@@ -31,7 +31,8 @@
     "overlayscrollbars-vue": "^0.5.9",
     "radash": "^12.1.0",
     "unplugin-fonts": "^1.1.1",
-    "vue": "^3.5.12"
+    "vue": "^3.5.12",
+    "vue-spinner": "^1.0.4"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^1.9.0",

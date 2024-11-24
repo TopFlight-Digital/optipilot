@@ -28,7 +28,53 @@ const item = computed(() => {
     return (scan.value?.hypotheses ?? hypotheses)[props.index];
 });
 
-function downloadProposal() {}
+const pending = ref(false);
+
+async function downloadProposal() {
+    pending.value = true;
+
+    const body = {
+        document: {
+            document_template_id: DOWNLOADABLE_TEMPLATE_ID,
+            status: `pending`,
+            payload: {
+                title: item.value.title,
+                description: item.value.description,
+            },
+        },
+    };
+
+    const response = await fetch(`https://api.pdfmonkey.io/api/v1/documents`, {
+        body: JSON.stringify(body),
+        headers: {
+            Authorization: `Bearer ${PDF_MONKEY_API_KEY}`,
+            "Content-Type": `application/json`,
+        },
+        method: `POST`,
+    });
+
+    const data = await response.json();
+    const id = data.document.id;
+
+    const routine = setInterval(async() => {
+        const response = await fetch(`https://api.pdfmonkey.io/api/v1/documents/${id}`, {
+            headers: {
+                Authorization: `Bearer ${PDF_MONKEY_API_KEY}`,
+            },
+        });
+
+        const data = await response.json();
+        console.log(`checking:`, data);
+
+        if (data.document.status === `success`) {
+            clearInterval(routine);
+            console.log(data);
+            pending.value = false;
+            window.open(data.document.download_url);
+        }
+    }, 300);
+
+}
 
 </script>
 
@@ -71,6 +117,7 @@ function downloadProposal() {}
                     :icon=download
                     variant="primary"
                     wide
+                    :pending="pending"
                     @click="downloadProposal"
                 />
             </div>

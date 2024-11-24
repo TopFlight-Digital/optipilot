@@ -28,6 +28,10 @@ const props = defineProps({
             return [`primary`, `secondary`].includes(value);
         },
     },
+    pending: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const classes = computed(() => {
@@ -37,8 +41,11 @@ const classes = computed(() => {
         'button--wide': props.wide,
         'button--icon-first': props.leader === `icon`,
         'button--disabled': props.disabled,
+        'button--pending': props.pending,
     };
 });
+
+const prevent = computed(() =>  props.disabled || props.pending);
 
 const attrs = useAttrs();
 
@@ -55,13 +62,20 @@ export default {
         type="button"
         class="button"
         :class="classes"
-        @click="!disabled && attrs.onClick?.()"
+        @click="!prevent && attrs.onClick?.()"
     >
-        {{ label }}
-        <app-icon
-            v-if="icon"
-            :name="icon"
+        <app-spinner
+            v-if="pending"
         />
+
+        <template v-else>
+            {{ label }}
+
+            <app-icon
+                v-if="icon"
+                :name="icon"
+            />
+        </template>
     </button>
 </template>
 
