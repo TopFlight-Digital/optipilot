@@ -7,6 +7,10 @@ const props = defineProps({
         type: Number,
         required: true,
     },
+    scanId: {
+        type: String,
+        required: false,
+    },
 });
 
 const emit = defineEmits<{
@@ -15,8 +19,13 @@ const emit = defineEmits<{
 
 const { hypotheses } = useBloc();
 
+const scan = computed(() => {
+    if (!props.scanId) return;
+    return useScanById(props.scanId).value;
+});
+
 const item = computed(() => {
-    return hypotheses[props.index];
+    return (scan.value?.hypotheses ?? hypotheses)[props.index];
 });
 
 function downloadProposal() {}
