@@ -1,5 +1,5 @@
 <script setup lang="ts">
-defineProps({
+const props = defineProps({
     /**
      * The ordinal number of the hypothesis, starting from 1.
      */
@@ -15,19 +15,25 @@ defineProps({
         type: String,
         required: true,
     },
+    icon: {
+        type: String,
+        required: false,
+    },
 });
 
-const { hostFavicon } = useBloc();
+const { hostFavicon, scanId } = useBloc();
+const scan = useScanById(scanId);
+const iconSource = computed(() => props.icon ?? scan.value?.icon ?? hostFavicon);
 </script>
 
 <template>
     <div class="bloc-hypothesis">
         <div
             class="bloc-hypothesis__image"
-            :style="`--background-image: url(${hostFavicon})`"
+            :style="`--background-image: url(${iconSource})`"
         >
             <img
-                :src=hostFavicon
+                :src=iconSource
             />
         </div>
 

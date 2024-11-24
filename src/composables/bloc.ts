@@ -2,6 +2,7 @@ import { HypothesesPrompt, Hypothesis } from "@/bloc/hypotheses-prompt";
 import { BREAKPOINTS, DEVICE_TYPE_OPTIONS, DeviceType } from "@/constants";
 import useVuelidate from "@vuelidate/core";
 import { required, url } from "@vuelidate/validators";
+import { ScanTitlePrompt } from "@/bloc/scan-title-prompt";
 
 function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
     const { domain } = useTab(tab);
@@ -68,12 +69,14 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
                 },
             }, scan),
         },
+
         feedback: {
             ...feedback,
             $validation: useVuelidate({
                 message: { required },
             }, feedback),
         },
+
         progress: {
             step: 1,
             message: ref(``),
@@ -105,7 +108,9 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
                 bloc.progress.numerator = 0;
             },
         },
+
         screenshots: ref<string[]>([]),
+
         takeScreenshots(currentTab: chrome.tabs.Tab) {
             type State = {
                 top: number, step: number, pageHeight: number
@@ -158,7 +163,23 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
             });
         },
 
-        prompt: new HypothesesPrompt((message?: string) => bloc.progress.tick(message)),
+        prompt: new HypothesesPrompt(
+            (message?: string) => bloc.progress.tick(message),
+            (value?: string) => (bloc.threadId = value),
+        ),
+
+        threadId: useStorage(
+            key`threadId`,
+            ``,
+        ),
+
+        scanId: ref<string>(``),
+
+        scanIds: useStorage(
+            `_scans`,
+            [],
+        ),
+
         pending: ref(false),
 
         async submit() {
@@ -188,18 +209,51 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
 
             bloc.progress.finish();
 
+            const scanId = crypto.randomUUID();
+            bloc.scanIds = [...bloc.scanIds, scanId];
+
+            const scan = useScanById(
+                scanId,
+                {
+                    id: scanId,
+                    threadId: bloc.threadId,
+                    title: ``,
+                    date: new Date(),
+                    icon: toValue(tab).favIconUrl,
+                    hypotheses: results,
+                },
+            );
+
+            bloc.scanId = scanId;
+
             setTimeout(() => {
                 bloc.hypotheses = results;
                 bloc.pending = false;
             }, 300);
+
+            new ScanTitlePrompt(bloc.threadId).request().then(title => {
+                scan.value!.title = title;
+            });
         },
-        async submitFeedback() {
+
+        async submitFeedback(scanId?: string) {
+            const scan = scanId ? useScanById(scanId) : undefined;
+
             bloc.pending = true;
             bloc.progress.reset(`Gathering feedback`);
 
-            const results = await bloc.prompt.request(bloc.feedback.message);
+            const results = await bloc.prompt.request(
+                bloc.feedback.message,
+                scan?.value?.threadId || bloc.threadId,
+            );
 
             bloc.progress.finish();
+
+            if (scan?.value) {
+                scan.value.hypotheses = results;
+                bloc.scanId = scanId;
+            }
+
             bloc.hypotheses = results;
             bloc.pending = false;
         },
@@ -208,6 +262,7 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
             key`hypotheses`,
             [],
         ),
+
         hostFavicon: computed(() => toValue(tab).favIconUrl),
         tab: useStorage(
             key`tab`,
