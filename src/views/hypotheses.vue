@@ -134,6 +134,7 @@ const scan = computed(() => scans.value[scanIndex.value]);
     <hypothesis-view
         v-else
         :index="hypothesisIndex"
+        :scan-id="tabModel === tabs[1].slug ? scan?.value.id : undefined"
         @back="hypothesisIndex = undefined"
     />
 </template>
