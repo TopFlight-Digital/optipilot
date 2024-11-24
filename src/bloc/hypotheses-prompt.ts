@@ -5,6 +5,7 @@ import { ThreadCreateParams } from "openai/resources/beta/index.mjs";
 import { dataUrlToFileInstance } from "./upload";
 import { cluster } from "radash";
 import { ImageFileContentBlock, ImageURLContentBlock } from "openai/resources/beta/threads/messages.mjs";
+import { user } from "./message";
 
 export type Hypothesis = {
     title: string;
@@ -20,23 +21,18 @@ function system(strings: TemplateStringsArray, ...values: any[]) {
     } as const;
 }
 
-function user(strings: TemplateStringsArray, ...values: any[]) {
-    const content = strings.reduce((accumulator, string_, index) => accumulator + string_ + (values[index] || ``), ``);
-
-    return {
-        role: `user`,
-        content: content.trim(),
-    } as const;
-}
-
 type RecordProgress = (message?: string) => void;
+type OnSetThreadId = (threadId?: string) => void;
 
 export class HypothesesPrompt extends Prompt {
     private recordProgress: RecordProgress;
 
-    constructor(recordProgress: RecordProgress) {
+    private onSetThreadId: OnSetThreadId;
+
+    constructor(recordProgress: RecordProgress, onSetThreadId: OnSetThreadId) {
         super();
         this.recordProgress = recordProgress;
+        this.onSetThreadId = onSetThreadId;
     }
 
     private client = new OpenAI({
@@ -50,7 +46,16 @@ export class HypothesesPrompt extends Prompt {
 
     private overview?: string;
 
-    private threadId?: string;
+    private _threadId?: string;
+
+    get threadId() {
+        return this._threadId;
+    }
+
+    set threadId(value) {
+        this._threadId = value;
+        this.onSetThreadId(value);
+    }
 
     public withScreenshots(data: typeof this.screenshots) {
         this.screenshots = data;
@@ -112,8 +117,10 @@ export class HypothesesPrompt extends Prompt {
         ];
     }
 
-    public async request(message?: string): Promise<Hypothesis[]> {
+    public async request(message?: string, threadId?: string): Promise<Hypothesis[]> {
         let hypotheses: Hypothesis[] = [];
+        this.threadId = threadId ?? undefined;
+
         this.recordProgress();
 
         if (this.threadId) {
