@@ -2,7 +2,7 @@ import { DEFAULT_HYPOTHESES_CAP, DEFAULT_MODEL, DESERIALIZABLE_OUTPUT_PROMPT } f
 import OpenAI from "openai";
 import { Prompt } from "./prompt";
 import { ThreadCreateParams } from "openai/resources/beta/index.mjs";
-import { dataUrlToFileInstance } from "./upload";
+import { dataUrlToFileInstance, isImage } from "./upload";
 import { cluster } from "radash";
 import { ImageFileContentBlock, ImageURLContentBlock } from "openai/resources/beta/threads/messages.mjs";
 import { user } from "./message";
@@ -46,6 +46,8 @@ export class HypothesesPrompt extends Prompt {
 
     private overview?: string;
 
+    private data: File[] = [];
+
     private _threadId?: string;
 
     get threadId() {
@@ -73,6 +75,14 @@ export class HypothesesPrompt extends Prompt {
     public withOverview(value: string) {
         if (value) {
             this.overview = value;
+        }
+
+        return this;
+    }
+
+    public withData(value: File[]) {
+        if (value) {
+            this.data = value;
         }
 
         return this;
@@ -114,6 +124,53 @@ export class HypothesesPrompt extends Prompt {
 
         return [
             ...screenshotMessages,
+        ];
+    }
+
+    private async dataMessages(): Promise<ThreadCreateParams.Message[]> {
+        const fileIds = await Promise.all(this.data.map(async file => {
+            this.recordProgress();
+
+            const response = await this.client.files.create({
+                file,
+                purpose: isImage(file) ? `vision` : `assistants`,
+            });
+
+            this.recordProgress();
+            return { id: response.id, isImage: isImage(file) };
+        }));
+
+        this.recordProgress();
+
+        const attachments: ThreadCreateParams.Message.Attachment[] = fileIds
+            .filter(({ isImage }) => !isImage)
+            .map(({ id }) => ({
+                file_id: id,
+                tools: [
+                    { type: `file_search` as const },
+                ],
+            }));
+
+        const fileBatches: ImageFileContentBlock[][] = cluster(
+            fileIds.filter(({ isImage }) => isImage).map(({ id }) => ({
+                type: `image_file` as const,
+                image_file: {
+                    file_id: id,
+                },
+            })),
+            10,
+        );
+
+        return [
+            {
+                role: `user` as const,
+                content: `Determine what kind of content is presented in each of these materials, and what key insights about user behaviour can be derived from them.`,
+                attachments,
+            },
+            ...fileBatches.map(content => ({
+                role: `user` as const,
+                content,
+            })),
         ];
     }
 
@@ -178,6 +235,31 @@ export class HypothesesPrompt extends Prompt {
                 }
                 console.log(`message1`, message);
             }
+
+            this.recordProgress();
+
+            const dataMessages = await this.dataMessages();
+            this.recordProgress();
+
+            const dataResponse = await this.client.beta.threads.runs.create(
+                this.threadId!,
+                {
+                    model: this.model,
+                    assistant_id: `asst_epLX3d0mculRUP4LVL1FYexo`,
+                    additional_messages: dataMessages,
+                    stream: true,
+                },
+            );
+
+            this.recordProgress();
+            streams = 0;
+
+            for await (const message of dataResponse) {
+                if (!(++streams % 25)) this.recordProgress();
+                console.log(`message5`, message);
+            }
+
+            this.recordProgress();
 
             const goalMessages = this.goal ? [
                 user`The goal of my product: ${this.goal}`,
