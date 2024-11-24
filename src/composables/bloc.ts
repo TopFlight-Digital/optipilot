@@ -3,6 +3,8 @@ import { BREAKPOINTS, DEVICE_TYPE_OPTIONS, DeviceType } from "@/constants";
 import useVuelidate from "@vuelidate/core";
 import { required, url } from "@vuelidate/validators";
 import { ScanTitlePrompt } from "@/bloc/scan-title-prompt";
+import { dataUrlToFileInstance, fileToDataUrl } from "@/bloc/upload";
+import { Body, Meta, UppyFile } from "@uppy/core";
 
 function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
     const { domain } = useTab(tab);
@@ -31,9 +33,38 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
             key`scan.overview`,
             ``,
         ),
-        data: useStorage(
+        data: useStorageAsync(
             key`scan.data`,
             [],
+            undefined,
+            {
+                serializer: {
+                    async read(value: string) {
+                        const deserialized: UppyFile<Meta, Body> & { data: string }[] = JSON.parse(value);
+
+                        const files = await Promise.all(
+                            deserialized.map(item => dataUrlToFileInstance(item.data)),
+                        );
+
+                        return deserialized.map((item, index) => ({
+                            ...item,
+                            data: files[index],
+                        }));
+                    },
+                    async write(data: UppyFile<Meta, Body>[]) {
+                        const files = await Promise.all(
+                            data.map(item => fileToDataUrl(item.data as File)),
+                        );
+
+                        return JSON.stringify(
+                            data.map((item, index) => ({
+                                ...item,
+                                data: files[index],
+                            })),
+                        );
+                    },
+                },
+            },
         ),
         deviceType: useStorage<DeviceType>(
             key`scan.deviceType`,
@@ -55,6 +86,7 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
                 data: {},
             }, product),
         },
+
         scan: {
             ...scan,
             $validation: useVuelidate({
@@ -200,6 +232,7 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
 
             bloc.prompt
                 .withScreenshots(bloc.screenshots)
+                .withData(bloc.scan.data.map(({ data }) => data))
                 .withGoal(bloc.scan.objective)
                 .withOverview(bloc.product.overview);
 
