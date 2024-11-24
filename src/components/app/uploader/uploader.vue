@@ -8,8 +8,11 @@ import { onMounted, ref } from 'vue';
 import { watchDeep } from '@vueuse/core';
 
 const root = ref();
-const files = ref(new Map<string, UppyFile<Meta, Body>>());
 const model = defineModel<UppyFile<Meta, Body>[]>();
+
+const files = ref(new Map<string, UppyFile<Meta, Body>>(
+    model.value?.map(file => [file.id, file]) ?? [],
+));
 
 const core = new Uppy();
 
