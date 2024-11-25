@@ -93,7 +93,7 @@ const { scan } = useBloc();
 
     &__content {
         display: grid;
-        gap: 40.5px;
+        gap: 24px;
         height: 100%;
         overflow: hidden;
         padding-inline: var(--container-padding);
@@ -105,8 +105,8 @@ const { scan } = useBloc();
     }
 
     &__navigation {
-        padding-top: 2.5rem;
-        padding-bottom: 1.75rem;
+        padding-top: 1.5rem;
+        padding-bottom: 1.25rem;
         background: #000;
         padding-inline: var(--container-padding);
         display: flex;

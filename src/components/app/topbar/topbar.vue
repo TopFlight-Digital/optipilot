@@ -1,18 +1,15 @@
 <script lang="ts" setup>
-import x from "@/icons/x.svg";
-const window = globalThis;
 </script>
 
 <template>
     <div
         class="app-topbar"
     >
-        <app-icon
-            class="app-topbar__close"
-            :name=x
-            role="button"
-            @click="window.close"
-        />
+        <div
+            class="app-topbar__slot"
+        >
+            <slot />
+        </div>
 
         <app-logo />
     </div>
@@ -20,20 +17,15 @@ const window = globalThis;
 
 <style lang="scss" scoped>
 .app-topbar {
-    height: 60px;
+    height: 80px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding-inline: var(--container-padding);
-    background: #0D1013;
     z-index: 1;
     position: relative;
 
-    &__close {
-        width: 14px;
-        height: 14px;
-        cursor: pointer;
-        color: var(--color-cd);
+    &__slot {
     }
 }
 </style>

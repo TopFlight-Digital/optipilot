@@ -127,7 +127,8 @@ async function downloadProposal() {
 
 <style lang="scss" scoped>
 .view {
-    display: grid;
+    display: flex !important;
+    flex-direction: column !important;
     height: 100%;
 
     &__preheading {

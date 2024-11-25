@@ -151,7 +151,7 @@ const scan = computed(() => scans.value[scanIndex.value]);
 
     &__content {
         display: grid;
-        gap: 40.5px;
+        gap: 24px;
         height: 100%;
         overflow: hidden;
         padding-inline: var(--container-padding);
@@ -163,7 +163,7 @@ const scan = computed(() => scans.value[scanIndex.value]);
     }
 
     &__navigation {
-        padding-top: 2.5rem;
+        padding-top: 1.75rem;
         padding-bottom: 1.75rem;
         background: #000;
         padding-inline: var(--container-padding);

@@ -36,19 +36,19 @@ watchDeep(
 </script>
 
 <template>
-    <app-topbar />
+    <app-topbar>
+        <app-tabs
+            v-model="tab"
+            class="app__nav"
+            :items="tabs"
+            size="large"
+        />
+    </app-topbar>
 
     <backdrop-light />
 
     <div class="app__container">
         <template v-if="!bloc.pending">
-            <app-tabs
-                v-model="tab"
-                class="app__nav"
-                :items="tabs"
-                size="large"
-            />
-
             <div
                 v-if="bloc.ready"
                 class="app__view"
@@ -82,10 +82,10 @@ watchDeep(
 }
 
 .app__container {
-    height: calc(100% - 60px);
+    height: calc(100% - 80px);
     display: flex;
     flex-direction: column;
-    padding-top: 2rem;
+    padding-top: 1.5rem;
     position: relative;
     z-index: 1;
 }
@@ -98,7 +98,6 @@ watchDeep(
 .app__view {
     height: 100%;
     overflow: hidden;
-    padding-top: 2rem;
 }
 
 .app__nav {
