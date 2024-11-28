@@ -13,15 +13,15 @@ const { feedback } = useBloc();
 <template>
     <div class="view">
         <div class="view__content">
-            <app-view-header
-                class="view__header"
-                headline="Feedback"
-                subline="Tell me about what you would like changed in these proposals."
-            />
-
             <app-scroll-view
                 overrun="2rem"
             >
+                <app-view-header
+                    class="view__header"
+                    headline="Feedback"
+                    subline="Tell me about what you would like changed in these proposals."
+                />
+
                 <div class="view__form">
                     <app-input
                         v-model="feedback.message"
@@ -31,28 +31,27 @@ const { feedback } = useBloc();
                         :required="!!feedback.$validation.message.required"
                     />
                 </div>
+
+                <div class="view__navigation">
+                    <div class="view__navigation-buttons">
+                        <app-button
+                            label="Back"
+                            :icon=backwards
+                            variant="secondary"
+                            leader="icon"
+                            @click="emit(`back`)"
+                        />
+
+                        <app-button
+                            label="Submit"
+                            variant="primary"
+                            wide
+                            :disabled="feedback.$validation.$invalid"
+                            @click="emit(`submit`)"
+                        />
+                    </div>
+                </div>
             </app-scroll-view>
-        </div>
-
-
-        <div class="view__navigation">
-            <div class="view__navigation-buttons">
-                <app-button
-                    label="Back"
-                    :icon=backwards
-                    variant="secondary"
-                    leader="icon"
-                    @click="emit(`back`)"
-                />
-
-                <app-button
-                    label="Submit"
-                    variant="primary"
-                    wide
-                    :disabled="feedback.$validation.$invalid"
-                    @click="emit(`submit`)"
-                />
-            </div>
         </div>
     </div>
 </template>
@@ -78,9 +77,8 @@ const { feedback } = useBloc();
     }
 
     &__navigation {
-        padding-top: 1.5rem;
+        padding-top: 6.25rem;
         padding-bottom: 1.75rem;
-        background: #000;
         padding-inline: var(--container-padding);
         display: flex;
         flex-direction: column;

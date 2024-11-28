@@ -22,6 +22,7 @@ defineProps({
 .scroll-view {
     overflow-y: scroll;
     padding-right: 2.25rem;
+    padding-bottom: 0;
 
     .os-scrollbar-track {
         height: calc(100% - var(--overrun) + 4px) !important;

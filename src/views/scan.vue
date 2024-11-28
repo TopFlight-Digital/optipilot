@@ -15,15 +15,15 @@ const { scan } = useBloc();
 <template>
     <div class="view">
         <div class="view__content">
-            <app-view-header
-                class="view__header"
-                headline="About the web page"
-                subline="Provide details about the specific web page you'd like me to analyse."
-            />
-
             <app-scroll-view
                 overrun="2rem"
             >
+                <app-view-header
+                    class="view__header"
+                    headline="About the web page"
+                    subline="Provide details about the specific web page you'd like me to analyse."
+                />
+
                 <div class="view__form">
                     <app-input
                         v-model="scan.objective"
@@ -50,38 +50,38 @@ const { scan } = useBloc();
                         :items="DEVICE_TYPE_OPTIONS"
                     />
                 </div>
+
+                <div class="view__navigation">
+                    <div class="view__navigation-buttons">
+                        <app-button
+                            label="Back"
+                            :icon=backwards
+                            variant="secondary"
+                            leader="icon"
+                            @click="emit(`back`)"
+                        />
+
+                        <app-button
+                            label="Next"
+                            :icon=forward
+                            variant="primary"
+                            wide
+                            :disabled="scan.$validation.$invalid"
+                            @click="emit(`proceed`)"
+                        />
+                    </div>
+
+                    <div
+                        class="view__navigation-copy"
+                    >
+                        <app-copy
+                            type="Label 2"
+                            color="cd"
+                            v-text="`Step 2 of 2`"
+                        />
+                    </div>
+                </div>
             </app-scroll-view>
-        </div>
-
-        <div class="view__navigation">
-            <div class="view__navigation-buttons">
-                <app-button
-                    label="Back"
-                    :icon=backwards
-                    variant="secondary"
-                    leader="icon"
-                    @click="emit(`back`)"
-                />
-
-                <app-button
-                    label="Next"
-                    :icon=forward
-                    variant="primary"
-                    wide
-                    :disabled="scan.$validation.$invalid"
-                    @click="emit(`proceed`)"
-                />
-            </div>
-
-            <div
-                class="view__navigation-copy"
-            >
-                <app-copy
-                    type="Label 2"
-                    color="cd"
-                    v-text="`Step 2 of 2`"
-                />
-            </div>
         </div>
     </div>
 </template>
@@ -106,8 +106,6 @@ const { scan } = useBloc();
 
     &__navigation {
         padding-top: 1.5rem;
-        padding-bottom: 1.25rem;
-        background: #000;
         padding-inline: var(--container-padding);
         display: flex;
         flex-direction: column;
