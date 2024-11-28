@@ -7,7 +7,7 @@ import logo from '@/icons/logo.svg';
         <app-icon :name=logo />
 
         <app-copy
-            type="Title/h4"
+            type="Body/b1-reg"
             color="f6"
             v-text="`OptiPilot`"
         />

@@ -42,6 +42,7 @@ watchDeep(
             class="app__nav"
             :items="tabs"
             size="large"
+            minimalistic
         />
     </app-topbar>
 
@@ -101,7 +102,6 @@ watchDeep(
 }
 
 .app__nav {
-    width: 20.5rem;
     margin-inline: auto;
     z-index: 1;
     position: relative;
