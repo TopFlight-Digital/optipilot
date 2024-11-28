@@ -12,15 +12,15 @@ const { product } = useBloc();
 <template>
     <div class="view">
         <div class="view__content">
-            <app-view-header
-                class="view__header"
-                headline="About your product"
-                subline="Help me understand your product so I can scan and analyse it effectively."
-            />
-
             <app-scroll-view
                 overrun="2rem"
             >
+                <app-view-header
+                    class="view__header"
+                    headline="About your product"
+                    subline="Help me understand your product so I can scan and analyse it effectively."
+                />
+
                 <div class="view__form">
                     <app-input
                         v-model="product.overview"
@@ -38,29 +38,28 @@ const { product } = useBloc();
                         :required="product.$validation.details.required"
                     />
                 </div>
+
+                <div class="view__navigation">
+                    <app-button
+                        label="Next"
+                        :icon=forward
+                        variant="primary"
+                        wide
+                        :disabled="product.$validation.$invalid"
+                        @click="emit(`proceed`)"
+                    />
+
+                    <div
+                        class="view__navigation-copy"
+                    >
+                        <app-copy
+                            type="Label 2"
+                            color="cd"
+                            v-text="`Step 1 of 2`"
+                        />
+                    </div>
+                </div>
             </app-scroll-view>
-        </div>
-
-
-        <div class="view__navigation">
-            <app-button
-                label="Next"
-                :icon=forward
-                variant="primary"
-                wide
-                :disabled="product.$validation.$invalid"
-                @click="emit(`proceed`)"
-            />
-
-            <div
-                class="view__navigation-copy"
-            >
-                <app-copy
-                    type="Label 2"
-                    color="cd"
-                    v-text="`Step 1 of 2`"
-                />
-            </div>
         </div>
     </div>
 </template>
@@ -84,9 +83,8 @@ const { product } = useBloc();
     }
 
     &__navigation {
-        padding-top: 1.5rem;
+        padding-top: 4.75rem;
         margin-bottom: -1.75rem;
-        background: #000;
         padding-inline: var(--container-padding);
         display: flex;
         flex-direction: column;
