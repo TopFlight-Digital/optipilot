@@ -32,5 +32,6 @@ defineProps({
     display: grid;
     gap: 13px;
     padding-right: 1.5rem;
+    padding-bottom: 2.5rem;
 }
 </style>

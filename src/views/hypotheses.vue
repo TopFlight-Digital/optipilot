@@ -100,34 +100,33 @@ const scan = computed(() => scans.value[scanIndex.value]);
                         </template>
                     </template>
                 </div>
+
+                <div
+                    v-if="tabModel === tabs[0].slug || scan !== undefined"
+                    class="view__navigation"
+                    :class="{
+                        'view__navigation--scan': scan !== undefined,
+                    }"
+                >
+                    <app-button
+                        v-if="scan !== undefined"
+                        label="Back"
+                        :icon=backwards
+                        variant="secondary"
+                        wide
+                        leader="icon"
+                        @click="scanIndex = undefined"
+                    />
+
+                    <app-button
+                        label="Feedback"
+                        :icon=forward
+                        :variant="scan !== undefined ? `primary` : `secondary`"
+                        wide
+                        @click="scan ? emit(`edit`, scan.value.id) : emit(`edit`)"
+                    />
+                </div>
             </app-scroll-view>
-        </div>
-
-
-        <div
-            v-if="tabModel === tabs[0].slug || scan !== undefined"
-            class="view__navigation"
-            :class="{
-                'view__navigation--scan': scan !== undefined,
-            }"
-        >
-            <app-button
-                v-if="scan !== undefined"
-                label="Back"
-                :icon=backwards
-                variant="secondary"
-                wide
-                leader="icon"
-                @click="scanIndex = undefined"
-            />
-
-            <app-button
-                label="Feedback"
-                :icon=forward
-                :variant="scan !== undefined ? `primary` : `secondary`"
-                wide
-                @click="scan ? emit(`edit`, scan.value.id) : emit(`edit`)"
-            />
         </div>
     </div>
 
@@ -165,7 +164,6 @@ const scan = computed(() => scans.value[scanIndex.value]);
     &__navigation {
         padding-top: 1.75rem;
         padding-bottom: 1.75rem;
-        background: #000;
         padding-inline: var(--container-padding);
         display: flex;
         flex-direction: column;
