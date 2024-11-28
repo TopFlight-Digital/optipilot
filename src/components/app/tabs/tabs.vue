@@ -17,6 +17,11 @@ const props = defineProps({
         },
         required: true,
     },
+    minimalistic: {
+        type: Boolean,
+        required: false,
+        default: () => false,
+    },
 });
 
 const model = defineModel({ type: String });
@@ -36,7 +41,10 @@ const activeComponent = computed(() => props.items.find(item => item.slug === mo
     <div class="app-tabs">
         <div
             class="app-tabs__tabs"
-            :class="{'app-tabs__tabs--small': props.size === 'small'}"
+            :class="{
+                'app-tabs__tabs--small': props.size === 'small',
+                'app-tabs__tabs--minimalistic': props.minimalistic,
+            }"
         >
             <button
                 v-for="(item, index) in items"
@@ -45,18 +53,19 @@ const activeComponent = computed(() => props.items.find(item => item.slug === mo
                 :class="{
                     'app-tabs__tab--active': model === item.slug,
                     'app-tabs__tab--small': props.size === 'small',
+                    'app-tabs__tab--minimalistic': props.minimalistic,
                 }"
                 @click="model = item.slug"
             >
                 <div
-                    v-if="index === 0"
+                    v-if="index === 0 && !props.minimalistic"
                     class="app-tabs__glider"
                     :style="gliderTranslationStyle"
                 />
 
                 <app-copy
                     :type="size === 'large' ? 'Button 2/label 1' : 'Label 2'"
-                    color="f6"
+                    :color="props.minimalistic && model !== item.slug ? 'cd' : 'f6'"
                     v-text="item.label"
                 />
             </button>
@@ -86,6 +95,14 @@ const activeComponent = computed(() => props.items.find(item => item.slug === mo
         &--small {
             padding: 2px;
         }
+
+        &--minimalistic {
+            gap: 12px;
+            padding: 0;
+            height: 20px;
+            border-width: 0;
+            background-color: transparent;
+        }
     }
 
     &__tab {
@@ -100,6 +117,21 @@ const activeComponent = computed(() => props.items.find(item => item.slug === mo
 
         &--small {
             padding: 11.5px;
+        }
+
+        &--minimalistic {
+            width: auto;
+            padding-inline: 0;
+
+            .app-copy {
+                font-size: 16px;
+            }
+        }
+
+        &--minimalistic.app-tabs__tab--active {
+            .app-copy {
+                text-decoration: underline;
+            }
         }
     }
 

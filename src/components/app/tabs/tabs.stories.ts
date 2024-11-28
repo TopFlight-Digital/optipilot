@@ -78,3 +78,20 @@ export const MonthlyAnuallyTabs = {
         ],
     },
 };
+
+export const Minimalistic = {
+    args: {
+        size: `large`,
+        minimalistic: true,
+        items: [
+            {
+                slug: `website`,
+                label: `Website`,
+            },
+            {
+                slug: `analysis`,
+                label: `Analysis`,
+            },
+        ],
+    },
+};
