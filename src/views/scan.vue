@@ -16,7 +16,7 @@ const { scan } = useBloc();
     <div class="view">
         <div class="view__content">
             <app-scroll-view
-                overrun="2rem"
+                overrun="0.5rem"
             >
                 <app-view-header
                     class="view__header"
