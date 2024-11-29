@@ -1,7 +1,9 @@
 <template>
     <overlay-scrollbars-component
+        ref="scrollContainer"
         class="scroll-view"
-        :style="{ paddingBottom: overrun, '--overrun': overrun, }"
+        :style="{ paddingBottom: overrun, '--overrun': overrun, '--scroll-color': scrollColor}"
+        @os-scroll="onScroll"
     >
         <slot />
     </overlay-scrollbars-component>
@@ -9,6 +11,8 @@
 
 <script lang="ts" setup>
 import { OverlayScrollbarsComponent } from "overlayscrollbars-vue";
+import { watchOnce } from '@vueuse/core';
+import { OverlayScrollbars } from "overlayscrollbars";
 
 defineProps({
     overrun: {
@@ -16,6 +20,28 @@ defineProps({
         default: `0`,
     },
 });
+
+const scrollColor = ref(`var(--color-ab)`);
+const scrollContainer = ref();
+const osInstance = ref<OverlayScrollbars>();
+
+watchOnce(
+    () => !!scrollContainer.value,
+    () => {
+        osInstance.value = scrollContainer.value.osInstance();
+    },
+);
+
+function onScroll() {
+    if (osInstance.value) {
+        const { scrollTop } = osInstance.value.elements().viewport;
+        console.log( scrollTop, osInstance.value.state().scrollCoordinates.end.y, osInstance.value.state());
+        scrollColor.value = scrollTop + 1 >= osInstance.value.state().scrollCoordinates.end.y
+            ? `var(--color-47)`
+            : `var(--color-ab)`;
+    }
+};
+
 </script>
 
 <style lang="scss">
@@ -39,7 +65,7 @@ defineProps({
         position: relative;
         left: 1px;
         top: 1px !important;
-        background: #ABAEE9 !important;
+        background: var(--scroll-color) !important;
         border: 1px solid transparent !important;
         transition: .3s;
 
