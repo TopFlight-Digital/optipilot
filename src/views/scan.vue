@@ -106,7 +106,6 @@ const { scan } = useBloc();
 
     &__navigation {
         padding-top: 1.5rem;
-        padding-inline: var(--container-padding);
         display: flex;
         flex-direction: column;
         gap: .75rem;

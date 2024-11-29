@@ -157,7 +157,6 @@ async function downloadProposal() {
     &__navigation {
         padding-top: 2.5rem;
         padding-bottom: 1.75rem;
-        background: #000;
         padding-inline: var(--container-padding);
         display: flex;
         flex-direction: column;

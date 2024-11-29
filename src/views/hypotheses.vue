@@ -164,7 +164,6 @@ const scan = computed(() => scans.value[scanIndex.value]);
     &__navigation {
         padding-top: 1.75rem;
         padding-bottom: 1.75rem;
-        padding-inline: var(--container-padding);
         display: flex;
         flex-direction: column;
         gap: .75rem;
