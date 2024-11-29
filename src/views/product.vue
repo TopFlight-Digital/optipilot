@@ -85,7 +85,6 @@ const { product } = useBloc();
     &__navigation {
         padding-top: 4.75rem;
         margin-bottom: -1.75rem;
-        padding-inline: var(--container-padding);
         display: flex;
         flex-direction: column;
         gap: .75rem;
