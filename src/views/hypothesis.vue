@@ -95,7 +95,7 @@ async function downloadProposal() {
             </div>
 
             <app-scroll-view
-                overrun="2rem"
+                overrun="0.5rem"
             >
                 <div class="view__items" />
             </app-scroll-view>
