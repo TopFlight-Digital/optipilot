@@ -13,7 +13,7 @@ const { product } = useBloc();
     <div class="view">
         <div class="view__content">
             <app-scroll-view
-                overrun="2rem"
+                overrun="0.5rem"
             >
                 <app-view-header
                     class="view__header"
@@ -75,7 +75,7 @@ const { product } = useBloc();
     }
 
     &__navigation {
-        padding-top: 4.75rem;
+        padding-top: 6.25rem;
         margin-bottom: -1.75rem;
         display: flex;
         flex-direction: column;

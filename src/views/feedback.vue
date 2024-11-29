@@ -14,7 +14,7 @@ const { feedback } = useBloc();
     <div class="view">
         <div class="view__content">
             <app-scroll-view
-                overrun="2rem"
+                overrun="0.5rem"
             >
                 <app-view-header
                     class="view__header"
@@ -77,7 +77,7 @@ const { feedback } = useBloc();
     }
 
     &__navigation {
-        padding-top: 6.25rem;
+        padding-top: 7.5rem;
         padding-bottom: 1.75rem;
         display: flex;
         flex-direction: column;

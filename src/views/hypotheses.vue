@@ -59,7 +59,7 @@ const scan = computed(() => scans.value[scanIndex.value]);
             </div>
 
             <app-scroll-view
-                overrun="2rem"
+                overrun="0.5rem"
             >
                 <div class="view__items">
                     <template v-if="tabModel === tabs[0].slug">
