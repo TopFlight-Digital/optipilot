@@ -79,7 +79,6 @@ const { feedback } = useBloc();
     &__navigation {
         padding-top: 6.25rem;
         padding-bottom: 1.75rem;
-        padding-inline: var(--container-padding);
         display: flex;
         flex-direction: column;
         gap: .75rem;
