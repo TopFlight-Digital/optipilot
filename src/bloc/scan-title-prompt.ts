@@ -25,7 +25,7 @@ export class ScanTitlePrompt extends Prompt {
             this.threadId,
             {
                 model: this.model,
-                assistant_id: `asst_epLX3d0mculRUP4LVL1FYexo`,
+                assistant_id: ASSISTANT_ID,
                 additional_messages: [
                     user`Please provide a title for this scan. Do not mention site name. 4 words max. Return the title as a JSON string, e.g. \`\`\`"Scan 1"\`\`\``,
                 ],

@@ -207,7 +207,7 @@ export class HypothesesPrompt extends Prompt {
             this.threadId,
             {
                 model: this.model,
-                assistant_id: `asst_epLX3d0mculRUP4LVL1FYexo`,
+                assistant_id: ASSISTANT_ID,
                 additional_messages: [
                     user`Now please return new hypotheses based on feedback provided below. Change only the ones that my feedback pertains to. Leave others intact but still return them in the same order as before.
 
@@ -240,7 +240,7 @@ export class HypothesesPrompt extends Prompt {
         this.recordProgress(`Analysing data for tailored improvements`);
 
         const stream = await this.client.beta.threads.createAndRun({
-            assistant_id: `asst_epLX3d0mculRUP4LVL1FYexo`,
+            assistant_id: ASSISTANT_ID,
             thread: {
                 messages,
             },
@@ -269,7 +269,7 @@ export class HypothesesPrompt extends Prompt {
             this.threadId!,
             {
                 model: this.model,
-                assistant_id: `asst_epLX3d0mculRUP4LVL1FYexo`,
+                assistant_id: ASSISTANT_ID,
                 additional_messages: dataMessages,
                 stream: true,
             },
@@ -297,20 +297,20 @@ export class HypothesesPrompt extends Prompt {
             user`Details of this page: ${this.details}`,
         ] as const : [];
 
-        
+
         const initialMessages = [
             ...goalMessages,
             ...overviewMessages,
             ...detailsMessages,
         ];
-        
+
         this.recordProgress(`Crafting smarter suggestions for you`);
 
         const response = await this.client.beta.threads.runs.create(
             this.threadId!,
             {
                 model: this.model,
-                assistant_id: `asst_epLX3d0mculRUP4LVL1FYexo`,
+                assistant_id: ASSISTANT_ID,
                 additional_messages: [
                     ...initialMessages,
                     user`Come up with up to ${this.cap} ideas for how to improve site to achieve the provided goal, based on the information and screenshots provided. In their descriptions try to:
