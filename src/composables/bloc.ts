@@ -5,6 +5,7 @@ import { BREAKPOINTS, DEVICE_TYPE_OPTIONS, DeviceType } from "@/constants";
 import { Body, Meta, UppyFile } from "@uppy/core";
 import useVuelidate from "@vuelidate/core";
 import { required } from "@vuelidate/validators";
+import { InitialPrompt } from "@/bloc/initial-prompt";
 
 function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
     const { domain } = useTab(tab);
@@ -205,6 +206,11 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
             (value?: string) => (bloc.threadId = value),
         ),
 
+        initialPrompt: new InitialPrompt(
+            domain.value || ``,
+            (message?: string) => bloc.progress.tick(message),
+        ),
+
         threadId: useStorage(
             key`threadId`,
             ``,
@@ -323,6 +329,16 @@ export function defineBloc() {
 
 export function initBloc(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
     Object.assign(bloc, fields(tab));
+    bloc.pending = true;
+
+    if (bloc.product.overview === ``) {
+        bloc.initialPrompt.request().then(text => {
+            bloc.product.overview = text;
+            bloc.pending = false;
+        });
+    } else {
+        bloc.pending = false;
+    }
     bloc.ready = true;
 
     return bloc;
