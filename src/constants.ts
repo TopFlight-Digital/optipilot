@@ -43,9 +43,9 @@ export const DEVICE_TYPE_OPTIONS = [
 
 export type DeviceType = typeof DEVICE_TYPE_OPTIONS[number][`slug`];
 
-export const MAX_DESKTOP_WIDTH = 1920 as const;
+export const MIN_DESKTOP_WIDTH = 1024 as const;
 
 export const BREAKPOINTS = {
     mobile: () => 360,
-    desktop: () => Math.min(window.screen.availWidth, MAX_DESKTOP_WIDTH),
+    desktop: () => Math.max(window.screen.availWidth, MIN_DESKTOP_WIDTH),
 } as const satisfies Record<DeviceType, () => number>;
