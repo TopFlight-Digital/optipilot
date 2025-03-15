@@ -83,7 +83,7 @@ watchDeep(
 }
 
 .app__container {
-    height: calc(100% - 80px);
+    height: calc(100% - 85px);
     display: flex;
     flex-direction: column;
     padding-top: 1.5rem;
