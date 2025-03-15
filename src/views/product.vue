@@ -29,6 +29,14 @@ const { product } = useBloc();
                         type="textarea"
                         :required="product.$validation.overview.required"
                     />
+
+                    <app-input
+                        v-model="product.details"
+                        label="Page details"
+                        hint="Optionally provide some additional details about this page."
+                        type="textarea"
+                        :required="product.$validation.details.required"
+                    />
                 </div>
             </app-scroll-view>
         </div>

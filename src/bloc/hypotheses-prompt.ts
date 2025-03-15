@@ -1,11 +1,11 @@
-import { DEFAULT_HYPOTHESES_CAP, DEFAULT_MODEL, DESERIALIZABLE_OUTPUT_PROMPT } from "@/constants";
+import { DEFAULT_HYPOTHESES_CAP, DEFAULT_MODEL } from "@/constants";
 import OpenAI from "openai";
-import { Prompt } from "./prompt";
 import { ThreadCreateParams } from "openai/resources/beta/index.mjs";
-import { dataUrlToFileInstance, isImage } from "./upload";
+import { ImageFileContentBlock } from "openai/resources/beta/threads/messages.mjs";
 import { cluster } from "radash";
-import { ImageFileContentBlock, ImageURLContentBlock } from "openai/resources/beta/threads/messages.mjs";
 import { user } from "./message";
+import { Prompt } from "./prompt";
+import { dataUrlToFileInstance, isImage } from "./upload";
 
 export type Hypothesis = {
     title: string;
@@ -46,6 +46,8 @@ export class HypothesesPrompt extends Prompt {
 
     private overview?: string;
 
+    private details?: string;
+
     private data: File[] = [];
 
     private _threadId?: string;
@@ -67,6 +69,14 @@ export class HypothesesPrompt extends Prompt {
     public withGoal(value: string) {
         if (value) {
             this.goal = value;
+        }
+
+        return this;
+    }
+
+    public withDetails(value: string) {
+        if (value) {
+            this.details = value;
         }
 
         return this;
@@ -175,136 +185,152 @@ export class HypothesesPrompt extends Prompt {
     }
 
     public async request(message?: string, threadId?: string): Promise<Hypothesis[]> {
-        let hypotheses: Hypothesis[] = [];
         this.threadId = threadId ?? undefined;
+        this.recordProgress();
+
+        const hypotheses = await (this.threadId ? this.sendFeedback(message) : this.analyze());
+
+        console.log(`hypotheses`, hypotheses);
+        this.recordProgress();
+
+        return hypotheses;
+    }
+
+    private async sendFeedback(message?: string): Promise<Hypothesis[]> {
+        if (!this.threadId) {
+            throw new Error(`Thread ID is required`);
+        }
 
         this.recordProgress();
 
-        if (this.threadId) {
-            this.recordProgress();
-
-            const response = await this.client.beta.threads.runs.create(
-                this.threadId,
-                {
-                    model: this.model,
-                    assistant_id: `asst_epLX3d0mculRUP4LVL1FYexo`,
-                    additional_messages: [
-                        user`Now please return new hypotheses based on feedback provided below. Change only the ones that my feedback pertains to. Leave others intact but still return them in the same order as before.
+        const response = await this.client.beta.threads.runs.create(
+            this.threadId,
+            {
+                model: this.model,
+                assistant_id: `asst_epLX3d0mculRUP4LVL1FYexo`,
+                additional_messages: [
+                    user`Now please return new hypotheses based on feedback provided below. Change only the ones that my feedback pertains to. Leave others intact but still return them in the same order as before.
 
                         Feedback:
                         ${message}
                         OPTIPILOT!`,
-                    ],
-                    stream: true,
-                },
-            );
-
-            this.recordProgress();
-            let streams = 0;
-
-            for await (const message of response) {
-                console.log(`message3`, message);
-                if (!(++streams % 25)) this.recordProgress();
-
-                if (message.event === `thread.message.completed`) {
-                    hypotheses = JSON.parse(message.data.content[0].text.value) as Hypothesis[];
-                }
-            }
-
-        } else {
-            const messages = await this.messages();
-            this.recordProgress(`Analysing data for tailored improvements`);
-
-            const stream = await this.client.beta.threads.createAndRun({
-                assistant_id: `asst_epLX3d0mculRUP4LVL1FYexo`,
-                thread: {
-                    messages,
-                },
-                model: this.model,
+                ],
                 stream: true,
-            });
+            },
+        );
 
-            this.recordProgress();
-            let streams = 0;
+        this.recordProgress();
+        let streams = 0;
 
-            for await (const message of stream) {
-                if (!(++streams % 25)) this.recordProgress();
+        for await (const message of response) {
+            console.log(`message3`, message);
+            if (!(++streams % 25)) this.recordProgress();
 
-                if (message.event === `thread.created`) {
-                    this.threadId = message.data.id;
-                }
-                console.log(`message1`, message);
+            if (message.event === `thread.message.completed`) {
+                return JSON.parse(message.data.content[0].text.value);
             }
-
-            this.recordProgress();
-
-            const dataMessages = await this.dataMessages();
-            this.recordProgress();
-
-            const dataResponse = await this.client.beta.threads.runs.create(
-                this.threadId!,
-                {
-                    model: this.model,
-                    assistant_id: `asst_epLX3d0mculRUP4LVL1FYexo`,
-                    additional_messages: dataMessages,
-                    stream: true,
-                },
-            );
-
-            this.recordProgress();
-            streams = 0;
-
-            for await (const message of dataResponse) {
-                if (!(++streams % 25)) this.recordProgress();
-                console.log(`message5`, message);
-            }
-
-            this.recordProgress();
-
-            const goalMessages = this.goal ? [
-                user`The goal of my product: ${this.goal}`,
-            ] as const : [];
-
-            const overviewMessages = this.overview ? [
-                user`Overview of my product: ${this.overview}`,
-            ] as const : [];
-
-            const initialMessages = [
-                ...goalMessages,
-                ...overviewMessages,
-            ];
-
-            this.recordProgress(`Crafting smarter suggestions for you`);
-
-            const response = await this.client.beta.threads.runs.create(
-                this.threadId!,
-                {
-                    model: this.model,
-                    assistant_id: `asst_epLX3d0mculRUP4LVL1FYexo`,
-                    additional_messages: [
-                        ...initialMessages,
-                        user`Come up with up to ${this.cap} ideas for how to improve site to achieve the provided goal, based on the information and screenshots provided. In their descriptions try to — refer to specific place on "the Page" like 'above' or 'bottom' etc — if applicable for given idea. OPTIPILOT!`,
-                    ],
-                    stream: true,
-                },
-            );
-
-            this.recordProgress();
-            streams = 0;
-
-            for await (const message of response) {
-                if (!(++streams % 25)) this.recordProgress();
-
-                console.log(`message2`, message);
-                if (message.event === `thread.message.completed`) {
-                    hypotheses = JSON.parse(message.data.content[0].text.value) as Hypothesis[];
-                }
-            }
-
-            this.recordProgress();
         }
 
-        console.log(`hypotheses`, hypotheses);
+        return [];
+    }
+
+    private async analyze(): Promise<Hypothesis[]> {
+        let hypotheses: Hypothesis[] = [];
+        const messages = await this.messages();
+        this.recordProgress(`Analysing data for tailored improvements`);
+
+        const stream = await this.client.beta.threads.createAndRun({
+            assistant_id: `asst_epLX3d0mculRUP4LVL1FYexo`,
+            thread: {
+                messages,
+            },
+            model: this.model,
+            stream: true,
+        });
+
+        this.recordProgress();
+        let streams = 0;
+
+        for await (const message of stream) {
+            if (!(++streams % 25)) this.recordProgress();
+
+            if (message.event === `thread.created`) {
+                this.threadId = message.data.id;
+            }
+            console.log(`message1`, message);
+        }
+
+        this.recordProgress();
+
+        const dataMessages = await this.dataMessages();
+        this.recordProgress();
+
+        const dataResponse = await this.client.beta.threads.runs.create(
+            this.threadId!,
+            {
+                model: this.model,
+                assistant_id: `asst_epLX3d0mculRUP4LVL1FYexo`,
+                additional_messages: dataMessages,
+                stream: true,
+            },
+        );
+
+        this.recordProgress();
+        streams = 0;
+
+        for await (const message of dataResponse) {
+            if (!(++streams % 25)) this.recordProgress();
+            console.log(`message5`, message);
+        }
+
+        this.recordProgress();
+
+        const goalMessages = this.goal ? [
+            user`The goal of my product: ${this.goal}`,
+        ] as const : [];
+
+        const overviewMessages = this.overview ? [
+            user`Overview of my product: ${this.overview}`,
+        ] as const : [];
+
+        const detailsMessages = this.details ? [
+            user`Details of this page: ${this.details}`,
+        ] as const : [];
+
+        
+        const initialMessages = [
+            ...goalMessages,
+            ...overviewMessages,
+            ...detailsMessages,
+        ];
+        
+        this.recordProgress(`Crafting smarter suggestions for you`);
+
+        const response = await this.client.beta.threads.runs.create(
+            this.threadId!,
+            {
+                model: this.model,
+                assistant_id: `asst_epLX3d0mculRUP4LVL1FYexo`,
+                additional_messages: [
+                    ...initialMessages,
+                    user`Come up with up to ${this.cap} ideas for how to improve site to achieve the provided goal, based on the information and screenshots provided. In their descriptions try to — refer to specific place on "the Page" like 'above' or 'bottom' etc — if applicable for given idea. OPTIPILOT!`,
+                ],
+                stream: true,
+            },
+        );
+
+        this.recordProgress();
+        streams = 0;
+
+        for await (const message of response) {
+            if (!(++streams % 25)) this.recordProgress();
+
+            console.log(`message2`, message);
+            if (message.event === `thread.message.completed`) {
+                hypotheses = JSON.parse(message.data.content[0].text.value);
+            }
+        }
+
         this.recordProgress();
 
         return hypotheses;

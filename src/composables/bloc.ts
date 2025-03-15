@@ -1,10 +1,10 @@
 import { HypothesesPrompt, Hypothesis } from "@/bloc/hypotheses-prompt";
-import { BREAKPOINTS, DEVICE_TYPE_OPTIONS, DeviceType } from "@/constants";
-import useVuelidate from "@vuelidate/core";
-import { required, url } from "@vuelidate/validators";
 import { ScanTitlePrompt } from "@/bloc/scan-title-prompt";
 import { dataUrlToFileInstance, fileToDataUrl } from "@/bloc/upload";
+import { BREAKPOINTS, DEVICE_TYPE_OPTIONS, DeviceType } from "@/constants";
 import { Body, Meta, UppyFile } from "@uppy/core";
+import useVuelidate from "@vuelidate/core";
+import { required } from "@vuelidate/validators";
 
 function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
     const { domain } = useTab(tab);
@@ -16,6 +16,10 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
     const product = {
         overview: useStorage(
             key`product.overview`,
+            ``,
+        ),
+        details: useStorage(
+            key`product.details`,
             ``,
         ),
         data: useStorage(
@@ -83,6 +87,7 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
             ...product,
             $validation: useVuelidate({
                 overview: { required },
+                details: {},
                 data: {},
             }, product),
         },
@@ -221,8 +226,7 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
             const currentTab = toValue(tab);
 
             resizeCurrentTab(
-                // @ts-ignore
-                BREAKPOINTS[bloc.scan.deviceType](),
+                BREAKPOINTS[bloc.scan.deviceType as keyof typeof BREAKPOINTS](),
                 window.screen.availHeight,
             );
 
@@ -234,7 +238,8 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
                 .withScreenshots(bloc.screenshots)
                 .withData(bloc.scan.data.map(({ data }) => data))
                 .withGoal(bloc.scan.objective)
-                .withOverview(bloc.product.overview);
+                .withOverview(bloc.product.overview)
+                .withDetails(bloc.product.details);
 
             bloc.progress.tick();
 
@@ -334,7 +339,7 @@ function resizeCurrentTab(width: number, height: number) {
     return new Promise<void>(resolve => {
 
         chrome.windows.getCurrent(async function(window) {
-            const updateInfo = {
+            const updateInfo: chrome.windows.UpdateInfo = {
                 width,
                 height,
                 focused: false,
