@@ -6,6 +6,8 @@ import { Body, Meta, UppyFile } from "@uppy/core";
 import useVuelidate from "@vuelidate/core";
 import { required } from "@vuelidate/validators";
 import { InitialPrompt } from "@/bloc/initial-prompt";
+import useVuelidate from "@vuelidate/core";
+import { required } from "@vuelidate/validators";
 
 function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
     const { domain } = useTab(tab);
