@@ -125,7 +125,7 @@ export class HypothesesPrompt extends Prompt {
         );
 
         const screenshotMessages = [
-            user`Here are screenshots of "the Page" in my product. Please list all the features you see describe their colors, appearance, contrast ratio and size:`,
+            user`Here are screenshots of "the Page" in my product. Please list out all the section headings exactly as you see them, without modifying them. Please list all the features you see describe their colors, appearance, contrast ratio and size:`,
             ...fileBatches.map(content => ({
                 role: `user` as const,
                 content,
@@ -313,7 +313,11 @@ export class HypothesesPrompt extends Prompt {
                 assistant_id: `asst_epLX3d0mculRUP4LVL1FYexo`,
                 additional_messages: [
                     ...initialMessages,
-                    user`Come up with up to ${this.cap} ideas for how to improve site to achieve the provided goal, based on the information and screenshots provided. In their descriptions try to — refer to specific place on "the Page" like 'above' or 'bottom' etc — if applicable for given idea. OPTIPILOT!`,
+                    user`Come up with up to ${this.cap} ideas for how to improve site to achieve the provided goal, based on the information and screenshots provided. In their descriptions try to:
+- refer to specific place on "the Page" like 'above' or 'bottom' etc — if applicable for given idea.
+- if you're referring to a specific section on the Page, use the section's heading.
+
+OPTIPILOT!`,
                 ],
                 stream: true,
             },
