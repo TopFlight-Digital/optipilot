@@ -227,6 +227,8 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
 
         pending: ref(false),
 
+        businessDetailsPending: ref(false),
+
         async submit() {
             bloc.pending = true;
             bloc.progress.reset(`Gathering screenshots`);
@@ -331,15 +333,16 @@ export function defineBloc() {
 
 export function initBloc(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
     Object.assign(bloc, fields(tab));
-    bloc.pending = true;
 
     if (bloc.product.overview === ``) {
+        bloc.businessDetailsPending = true;
         bloc.initialPrompt.request().then(text => {
+            if (!bloc.businessDetailsPending) {
+                return;
+            }
             bloc.product.overview = text;
-            bloc.pending = false;
+            bloc.businessDetailsPending = false;
         });
-    } else {
-        bloc.pending = false;
     }
     bloc.ready = true;
 

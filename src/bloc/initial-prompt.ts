@@ -26,31 +26,16 @@ export class InitialPrompt extends Prompt {
         this.recordProgress = recordProgress;
     }
 
-    public async request(): Promise<string> {
-        const stream = await this.client.beta.threads.createAndRun({
-            assistant_id: ASSISTANT_ID,
-            thread: {
-                messages: [
-                    user`Analyze whether you have information about the business at the following URL: ${this.tabTitle}. If you have information about this business or brand, please provide details about its activities, products, services, and any other relevant information`,
-                ],
-            },
+    public async request(): Promise<string | null> {
+
+        const completion = await this.client.chat.completions.create({
             model: this.model,
-            stream: true,
+            messages: [{
+                role: `user`,
+                content: `Analyze whether you have information about the business at the following URL: ${this.tabTitle}. If you have information about this business or brand, please provide details about its activities, products, services, and any other relevant information.`,
+            }],
         });
 
-        let text = ``;
-
-        let streams = 0;
-
-        for await (const message of stream) {
-            if (!(++streams % 25)) this.recordProgress();
-            if (message.event === `thread.message.completed`) {
-                this.recordProgress();
-                text = message.data.content[0].text.value;
-            }
-            console.log(`initial msg #1`, message);
-        }
-
-        return text;
+        return completion.choices[0].message.content;
     }
 }
