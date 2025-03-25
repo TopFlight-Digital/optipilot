@@ -6,6 +6,7 @@ const emit = defineEmits<{
 }>();
 
 const { product } = useBloc();
+const bloc = defineBloc();
 
 </script>
 
@@ -27,8 +28,18 @@ const { product } = useBloc();
                         label="Business details"
                         hint="Tell me about your business or brand."
                         type="textarea"
+                        :pending="bloc.businessDetailsPending"
                         :required="product.$validation.overview.required"
-                    />
+                    >
+                        <template #pending>
+                            <app-spinner color="#FFFFFF" />
+
+                            <app-button
+                                :label="`Cancel`"
+                                @click="bloc.businessDetailsPending = false"
+                            />
+                        </template>
+                    </app-input>
 
                     <app-input
                         v-model="product.details"

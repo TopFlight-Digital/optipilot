@@ -10,6 +10,10 @@ const props = defineProps({
         type: String as () => `text` | `textarea` | `file`,
         default: `text`,
     },
+    pending: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const model = defineModel<Model>();
@@ -27,8 +31,15 @@ const model = defineModel<Model>();
             <slot name="label:after" />
         </template>
 
+        <div
+            v-if="pending"
+            class="app-input__pending"
+        >
+            <slot name="pending" />
+        </div>
+
         <textarea
-            v-if="type === `textarea`"
+            v-else-if="type === `textarea`"
             v-model="model"
         />
 
@@ -48,6 +59,7 @@ const model = defineModel<Model>();
 <style lang="scss">
 .app-input {
     input,
+    &__pending,
     textarea {
         //styleName: Body/b1-reg;
         font-family: Figtree;
@@ -65,6 +77,12 @@ const model = defineModel<Model>();
         max-width: 500px;
         box-sizing: border-box;
         color: var(--color-f6);
+    }
+
+    &__pending {
+        height: 132px;
+        display: grid;
+        place-items: center;
     }
 
     textarea {
