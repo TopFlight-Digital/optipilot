@@ -124,8 +124,19 @@ export class HypothesesPrompt extends Prompt {
             10,
         );
 
+        const keyPageAspects = [
+            `colors`,
+            `appearance`,
+            `contrast ratio`,
+            `size`,
+            `section responsibility`,
+            `information density`,
+            `cognitive load`,
+            `all the elements inside`,
+        ];
+
         const screenshotMessages = [
-            user`Here are screenshots of "the Page" in my product. Please list out all the section headings exactly as you see them, without modifying them. Please list all the features you see describe their colors, appearance, contrast ratio and size:`,
+            user`Here are screenshots of "the Page" in my product. Please list out all the section headings exactly as you see them, without modifying them. Per section please list all the features you see describe their ${keyPageAspects.join(`, `)}. Don't hesitate to express your opinion describing ideas, like the hitherto version of a section sucks:`,
             ...fileBatches.map(content => ({
                 role: `user` as const,
                 content,
