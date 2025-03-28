@@ -5,7 +5,7 @@ import { BREAKPOINTS, DEVICE_TYPE_OPTIONS, DeviceType } from "@/constants";
 import { Body, Meta, UppyFile } from "@uppy/core";
 import useVuelidate from "@vuelidate/core";
 import { required } from "@vuelidate/validators";
-import { InitialPrompt } from "@/bloc/initial-prompt";
+import { BusinessInfoPrompt } from "@/bloc/business-info-prompt";
 import useVuelidate from "@vuelidate/core";
 import { required } from "@vuelidate/validators";
 
@@ -208,7 +208,7 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
             (value?: string) => (bloc.threadId = value),
         ),
 
-        initialPrompt: new InitialPrompt(
+        businessInfoPrompt: new BusinessInfoPrompt(
             domain.value || ``,
             (message?: string) => bloc.progress.tick(message),
         ),
@@ -331,12 +331,30 @@ export function defineBloc() {
     return bloc;
 }
 
+function isValidUrl(url?: string): boolean {
+    if (!url) return false;
+
+    try {
+        const parsedUrl = new URL(url);
+
+        const invalidProtocols = [`chrome:`, `about:`, `file:`];
+        if (invalidProtocols.some(protocol => parsedUrl.protocol.startsWith(protocol))) {
+            return false;
+        }
+
+        const invalidHosts = [`newtab`, `settings`, `extensions`];
+        return !(invalidHosts.some(host => parsedUrl.hostname.includes(host)));
+    } catch {
+        return false;
+    }
+}
+
 export function initBloc(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
     Object.assign(bloc, fields(tab));
 
-    if (bloc.product.overview === ``) {
+    if (bloc.product.overview === `` && isValidUrl(tab.url)) {
         bloc.businessDetailsPending = true;
-        bloc.initialPrompt.request().then(text => {
+        bloc.businessInfoPrompt.request().then(text => {
             if (!bloc.businessDetailsPending) {
                 return;
             }
