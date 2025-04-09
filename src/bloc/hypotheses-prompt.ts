@@ -133,6 +133,7 @@ export class HypothesesPrompt extends Prompt {
             `information density`,
             `cognitive load`,
             `all the elements inside`,
+            `problems it currently has disturbing fulfilling its purpose (if any)`,
         ];
 
         const screenshotMessages = [
@@ -308,7 +309,6 @@ export class HypothesesPrompt extends Prompt {
             user`Details of this page: ${this.details}`,
         ] as const : [];
 
-
         const initialMessages = [
             ...goalMessages,
             ...overviewMessages,
@@ -325,9 +325,12 @@ export class HypothesesPrompt extends Prompt {
                 additional_messages: [
                     ...initialMessages,
                     user`Come up with up to ${this.cap} ideas for how to improve site to achieve the provided goal, based on the information and screenshots provided. In their descriptions try to:
-- refer to specific place on "the Page" like 'above' or 'bottom' etc — if applicable for given idea.
-- if you're referring to a specific section on the Page, use the section's heading.
+- refer to specific place on "the Page" like 'above' or 'bottom' etc — if applicable for given idea
+- if you're referring to a specific section on the Page, use the section's heading
+- highlight if a section is a site's header or footer
+- describe why the new experience would be better than the current one by comparing
 
+Please work as if it's a matter of life and death and we have limited time to fulfill the goal. We need ideas that will have maximum impact with balanced effort.
 OPTIPILOT!`,
                 ],
                 stream: true,
@@ -341,6 +344,36 @@ OPTIPILOT!`,
             if (!(++streams % 25)) this.recordProgress();
 
             console.log(`message2`, message);
+            if (message.event === `thread.message.completed`) {
+                hypotheses = JSON.parse(message.data.content[0].text.value);
+            }
+        }
+
+        console.log(`Original hypotheses: ${JSON.stringify(hypotheses, null, 2)}`);
+
+        this.recordProgress();
+
+        const refinedResponse = await this.client.beta.threads.runs.create(
+            this.threadId!,
+            {
+                model: this.model,
+                assistant_id: ASSISTANT_ID,
+                additional_messages: [
+                    user`
+                    Now please return the exact same message as before, just omit very generic ideas especially ones that say no more than "just make it more eye-catching bro". Make an effort to replace these with more thoughtful / insightful ideas.
+                    `,
+                ],
+                stream: true,
+            },
+        );
+
+        this.recordProgress();
+        streams = 0;
+
+        for await (const message of refinedResponse) {
+            if (!(++streams % 25)) this.recordProgress();
+
+            console.log(`message3`, message);
             if (message.event === `thread.message.completed`) {
                 hypotheses = JSON.parse(message.data.content[0].text.value);
             }
