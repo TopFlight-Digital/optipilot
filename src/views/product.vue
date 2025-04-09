@@ -36,6 +36,7 @@ const bloc = defineBloc();
 
                             <app-button
                                 :label="`Cancel`"
+                                variant="secondary"
                                 @click="bloc.businessDetailsPending = false"
                             />
                         </template>
