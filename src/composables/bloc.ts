@@ -5,12 +5,11 @@ import { BREAKPOINTS, DEVICE_TYPE_OPTIONS, DeviceType } from "@/constants";
 import { Body, Meta, UppyFile } from "@uppy/core";
 import useVuelidate from "@vuelidate/core";
 import { required } from "@vuelidate/validators";
-import { BusinessInfoPrompt } from "@/bloc/business-info-prompt";
-import useVuelidate from "@vuelidate/core";
-import { required } from "@vuelidate/validators";
+import { useBusinessInfo } from "./business-info";
 
 function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
     const { domain } = useTab(tab);
+    const { analyze } = useBusinessInfo();
 
     function key(value: TemplateStringsArray) {
         return `${domain.value ?? ``}.${value[0]}`;
@@ -208,10 +207,11 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
             (value?: string) => (bloc.threadId = value),
         ),
 
-        businessInfoPrompt: new BusinessInfoPrompt(
-            domain.value || ``,
-            (message?: string) => bloc.progress.tick(message),
-        ),
+        businessInfoPrompt: {
+            request: async () => {
+                return analyze(domain.value || ``);
+            },
+        },
 
         threadId: useStorage(
             key`threadId`,

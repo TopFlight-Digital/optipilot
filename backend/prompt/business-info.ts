@@ -2,7 +2,6 @@ import { api } from "encore.dev/api";
 import { secret } from "encore.dev/config";
 import { BusinessInfoPrompt } from "./business-info-prompt";
 
-// Define the OpenAI API key as a secret
 const openaiApiKey = secret("OpenAIAPIKey");
 
 interface BusinessInfoRequest {
