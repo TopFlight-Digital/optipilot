@@ -409,34 +409,35 @@ interface HypothesesRequest {
 }
 
 interface HypothesesResponse {
-    hypotheses: Hypothesis[];
+    hypotheses?: Hypothesis[];
+    message?: string;
 }
 
 const openaiApiKey = secret("OpenAIAPIKey");
 const assistantId = secret("AssistantID");
 
-export const generateHypotheses = api(
-    { method: "POST", expose: true },
-    async(params: HypothesesRequest): Promise<HypothesesResponse> => {
-
+export const generateHypotheses = api.streamOut<HypothesesRequest, HypothesesResponse>(
+    { expose: true },
+    async(parameters: HypothesesRequest, stream) => {
         const prompt = new HypothesesPrompt(
-            () => {},
+            () => {
+                stream.send({ message: `` });
+            },
             () => {},
             assistantId(),
             openaiApiKey(),
         );
 
         prompt
-            .withScreenshots(params.screenshots)
-            .withData(params.data)
-            .withGoal(params.goal)
-            .withOverview(params.overview)
-            .withDetails(params.details);
+            .withScreenshots(parameters.screenshots)
+            .withData(parameters.data)
+            .withGoal(parameters.goal)
+            .withOverview(parameters.overview)
+            .withDetails(parameters.details);
 
         const hypotheses = await prompt.request();
 
-        console.log(`hypotheses`, hypotheses);
-
-        return { hypotheses };
+        await stream.send({ hypotheses });
+        await stream.close();
     },
 );
