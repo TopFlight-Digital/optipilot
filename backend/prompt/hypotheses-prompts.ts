@@ -6,6 +6,9 @@ import { cluster } from "radash";
 import { user } from "./message";
 import { Prompt } from "./prompt";
 import { dataUrlToFileInstance, isImage } from "./upload";
+import { api } from "encore.dev/api";
+import { secret } from "encore.dev/config";
+
 
 
 export type Hypothesis = {
@@ -396,3 +399,44 @@ OPTIPILOT!`,
         return DEFAULT_HYPOTHESES_CAP;
     }
 }
+
+interface HypothesesRequest {
+    screenshots: string[];
+    data: any[];
+    goal: string;
+    overview: string;
+    details: string;
+}
+
+interface HypothesesResponse {
+    hypotheses: Hypothesis[];
+}
+
+const openaiApiKey = secret("OpenAIAPIKey");
+const assistantId = secret("AssistantID");
+
+export const generateHypotheses = api(
+    { method: "POST", expose: true },
+    async(params: HypothesesRequest): Promise<HypothesesResponse> => {
+
+        const prompt = new HypothesesPrompt(
+            () => {},
+            () => {},
+            assistantId(),
+            openaiApiKey(),
+        );
+
+        prompt
+            .withScreenshots(params.screenshots)
+            .withData(params.data)
+            .withGoal(params.goal)
+            .withOverview(params.overview)
+            .withDetails(params.details);
+
+        const hypotheses = await prompt.request();
+
+        console.log(`hypotheses`, hypotheses);
+
+        return { hypotheses };
+    },
+);
