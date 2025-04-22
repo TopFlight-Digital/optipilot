@@ -1,11 +1,8 @@
-import { DEFAULT_HYPOTHESES_CAP, DEFAULT_MODEL } from "@/constants";
+import { DEFAULT_MODEL } from "@/constants";
 import OpenAI from "openai";
-import { ThreadCreateParams } from "openai/resources/beta/index.mjs";
-import { ImageFileContentBlock } from "openai/resources/beta/threads/messages.mjs";
-import { cluster } from "radash";
 import { user } from "./message";
 import { Prompt } from "./prompt";
-import { dataUrlToFileInstance, isImage } from "./upload";
+import Client from "../composables/client";
 
 export type Hypothesis = {
     title: string;
@@ -98,104 +95,6 @@ export class HypothesesPrompt extends Prompt {
         return this;
     }
 
-    private async messages(): Promise<ThreadCreateParams.Message[]> {
-        const fileIds = await Promise.all(this.screenshots.map(async screenshot => {
-            const file = await dataUrlToFileInstance(screenshot);
-            this.recordProgress();
-
-            const response = await this.client.files.create({
-                file,
-                purpose: `vision`,
-            });
-
-            this.recordProgress();
-            return response.id;
-        }));
-
-        this.recordProgress();
-
-        const fileBatches: ImageFileContentBlock[][] = cluster(
-            fileIds.map(id => ({
-                type: `image_file` as const,
-                image_file: {
-                    file_id: id,
-                },
-            })),
-            10,
-        );
-
-        const keyPageAspects = [
-            `colors`,
-            `appearance`,
-            `contrast ratio`,
-            `size`,
-            `section responsibility`,
-            `information density`,
-            `cognitive load`,
-            `all the elements inside`,
-            `problems it currently has disturbing fulfilling its purpose (if any)`,
-        ];
-
-        const screenshotMessages = [
-            user`Here are screenshots of "the Page" in my product. Please list out all the section headings exactly as you see them, without modifying them. Per section please list all the features you see describe their ${keyPageAspects.join(`, `)}. Don't hesitate to express your opinion describing ideas, like the hitherto version of a section sucks:`,
-            ...fileBatches.map(content => ({
-                role: `user` as const,
-                content,
-            })),
-        ];
-
-        return [
-            ...screenshotMessages,
-        ];
-    }
-
-    private async dataMessages(): Promise<ThreadCreateParams.Message[]> {
-        const fileIds = await Promise.all(this.data.map(async file => {
-            this.recordProgress();
-
-            const response = await this.client.files.create({
-                file,
-                purpose: isImage(file) ? `vision` : `assistants`,
-            });
-
-            this.recordProgress();
-            return { id: response.id, isImage: isImage(file) };
-        }));
-
-        this.recordProgress();
-
-        const attachments: ThreadCreateParams.Message.Attachment[] = fileIds
-            .filter(({ isImage }) => !isImage)
-            .map(({ id }) => ({
-                file_id: id,
-                tools: [
-                    { type: `file_search` as const },
-                ],
-            }));
-
-        const fileBatches: ImageFileContentBlock[][] = cluster(
-            fileIds.filter(({ isImage }) => isImage).map(({ id }) => ({
-                type: `image_file` as const,
-                image_file: {
-                    file_id: id,
-                },
-            })),
-            10,
-        );
-
-        return [
-            {
-                role: `user` as const,
-                content: `Determine what kind of content is presented in each of these materials, and what key insights about user behaviour can be derived from them.`,
-                attachments,
-            },
-            ...fileBatches.map(content => ({
-                role: `user` as const,
-                content,
-            })),
-        ];
-    }
-
     public async request(message?: string, threadId?: string): Promise<Hypothesis[]> {
         this.threadId = threadId ?? undefined;
         this.recordProgress();
@@ -247,139 +146,31 @@ export class HypothesesPrompt extends Prompt {
     }
 
     private async analyze(): Promise<Hypothesis[]> {
-        let hypotheses: Hypothesis[] = [];
-        const messages = await this.messages();
-        this.recordProgress(`Analysing data for tailored improvements`);
+        const client = new Client(API_SERVER_URL);
+        const stream = await client.prompt.generateHypotheses();
 
-        const stream = await this.client.beta.threads.createAndRun({
-            assistant_id: ASSISTANT_ID,
-            thread: {
-                messages,
-            },
-            model: this.model,
-            stream: true,
+        await stream.send({
+            goal: this.goal || ``,
+            overview: this.overview || ``,
+            details: this.details || ``,
+            screenshots: this.screenshots,
+            data: this.data,
         });
 
-        this.recordProgress();
-        let streams = 0;
-
-        for await (const message of stream) {
-            if (!(++streams % 25)) this.recordProgress();
-
-            if (message.event === `thread.created`) {
-                this.threadId = message.data.id;
+        let hypotheses: Hypothesis[] = [];
+        this.recordProgress(`Analysing data for tailored improvements`);
+        for await (const response of stream) {
+            if (response.hypotheses) {
+                hypotheses = response.hypotheses;
             }
-            console.log(`message1`, message);
-        }
-
-        this.recordProgress();
-
-        const dataMessages = await this.dataMessages();
-        this.recordProgress();
-
-        const dataResponse = await this.client.beta.threads.runs.create(
-            this.threadId!,
-            {
-                model: this.model,
-                assistant_id: ASSISTANT_ID,
-                additional_messages: dataMessages,
-                stream: true,
-            },
-        );
-
-        this.recordProgress();
-        streams = 0;
-
-        for await (const message of dataResponse) {
-            if (!(++streams % 25)) this.recordProgress();
-            console.log(`message5`, message);
-        }
-
-        this.recordProgress();
-
-        const goalMessages = this.goal ? [
-            user`The goal of my product: ${this.goal}`,
-        ] as const : [];
-
-        const overviewMessages = this.overview ? [
-            user`Overview of my product: ${this.overview}`,
-        ] as const : [];
-
-        const detailsMessages = this.details ? [
-            user`Details of this page: ${this.details}`,
-        ] as const : [];
-
-        const initialMessages = [
-            ...goalMessages,
-            ...overviewMessages,
-            ...detailsMessages,
-        ];
-
-        this.recordProgress(`Crafting smarter suggestions for you`);
-
-        const response = await this.client.beta.threads.runs.create(
-            this.threadId!,
-            {
-                model: this.model,
-                assistant_id: ASSISTANT_ID,
-                additional_messages: [
-                    ...initialMessages,
-                    user`Come up with up to ${this.cap} ideas for how to improve site to achieve the provided goal, based on the information and screenshots provided. In their descriptions try to:
-- refer to specific place on "the Page" like 'above' or 'bottom' etc — if applicable for given idea
-- if you're referring to a specific section on the Page, use the section's heading
-- highlight if a section is a site's header or footer
-- describe why the new experience would be better than the current one by comparing
-
-Please work as if it's a matter of life and death and we have limited time to fulfill the goal. We need ideas that will have maximum impact with balanced effort.
-OPTIPILOT!`,
-                ],
-                stream: true,
-            },
-        );
-
-        this.recordProgress();
-        streams = 0;
-
-        for await (const message of response) {
-            if (!(++streams % 25)) this.recordProgress();
-
-            console.log(`message2`, message);
-            if (message.event === `thread.message.completed`) {
-                hypotheses = JSON.parse(message.data.content[0].text.value);
+            if (response.threadId) {
+                this.onSetThreadId(response.threadId);
             }
-        }
-
-        console.log(`Original hypotheses: ${JSON.stringify(hypotheses, null, 2)}`);
-
-        this.recordProgress();
-
-        const refinedResponse = await this.client.beta.threads.runs.create(
-            this.threadId!,
-            {
-                model: this.model,
-                assistant_id: ASSISTANT_ID,
-                additional_messages: [
-                    user`
-                    Now please return the exact same message as before, just omit very generic ideas especially ones that say no more than "just make it more eye-catching bro". Make an effort to replace these with more thoughtful / insightful ideas.
-                    `,
-                ],
-                stream: true,
-            },
-        );
-
-        this.recordProgress();
-        streams = 0;
-
-        for await (const message of refinedResponse) {
-            if (!(++streams % 25)) this.recordProgress();
-
-            console.log(`message3`, message);
-            if (message.event === `thread.message.completed`) {
-                hypotheses = JSON.parse(message.data.content[0].text.value);
+            if (Object.prototype.hasOwnProperty.call(response, `message`)) {
+                this.recordProgress(response.message);
             }
-        }
 
-        this.recordProgress();
+        }
 
         return hypotheses;
     }
@@ -388,7 +179,4 @@ OPTIPILOT!`,
         return DEFAULT_MODEL;
     }
 
-    private get cap() {
-        return DEFAULT_HYPOTHESES_CAP;
-    }
 }
