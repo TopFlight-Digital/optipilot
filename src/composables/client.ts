@@ -70,16 +70,17 @@ export namespace prompt {
     }
 
     export interface HypothesesRequest {
-        screenshots: string[]
-        data: any[]
-        goal: string
-        overview: string
-        details: string
+        screenshots?: string[];
+        data?: any[];
+        goal?: string;
+        overview?: string;
+        details?: string;
     }
 
     export interface HypothesesResponse {
         hypotheses?: Hypothesis[]
         message?: string
+        threadId?: string;
     }
 
     export interface Hypothesis {
@@ -100,17 +101,8 @@ export namespace prompt {
             return await resp.json() as BusinessInfoResponse
         }
 
-        public async generateHypotheses(params: HypothesesRequest): Promise<StreamIn<HypothesesResponse>> {
-            // Convert our params into the objects we need for the request
-            const query = makeRecord<string, string | string[]>({
-                data:        params.data.map((v) => String(v)),
-                details:     params.details,
-                goal:        params.goal,
-                overview:    params.overview,
-                screenshots: params.screenshots.map((v) => v),
-            })
-
-            return await this.baseClient.createStreamIn(`/prompt.generateHypotheses`, {query})
+        public async generateHypotheses(): Promise<StreamInOut<HypothesesRequest, HypothesesResponse>> {
+            return await this.baseClient.createStreamInOut(`/prompt.generateHypotheses`)
         }
     }
 }
