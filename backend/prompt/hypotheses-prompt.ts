@@ -8,8 +8,7 @@ import { Prompt } from "./prompt";
 import { dataUrlToFileInstance, isImage } from "./upload";
 import { api } from "encore.dev/api";
 import { secret } from "encore.dev/config";
-
-
+import { StreamInOut } from "encore.dev/api";
 
 export type Hypothesis = {
     title: string;
@@ -401,39 +400,46 @@ OPTIPILOT!`,
 }
 
 interface HypothesesRequest {
-    screenshots: string[];
-    data: any[];
     goal: string;
     overview: string;
     details: string;
+    screenshots?: string[];
+    data?: any[];
 }
 
 interface HypothesesResponse {
     hypotheses?: Hypothesis[];
     message?: string;
+    threadId?: string;
 }
 
 const openaiApiKey = secret("OpenAIAPIKey");
 const assistantId = secret("AssistantID");
 
-export const generateHypotheses = api.streamOut<HypothesesRequest, HypothesesResponse>(
+export const generateHypotheses = api.streamInOut<HypothesesRequest, HypothesesResponse>(
     { expose: true },
-    async(parameters: HypothesesRequest, stream) => {
+    async(stream: StreamInOut<HypothesesRequest, HypothesesResponse>) => {
         const prompt = new HypothesesPrompt(
-            () => {
-                stream.send({ message: `` });
+            message => {
+                stream.send({ message: message ?? `` });
             },
-            () => {},
+            value => {
+                stream.send({ threadId: value });
+            },
             assistantId(),
             openaiApiKey(),
         );
 
-        prompt
-            .withScreenshots(parameters.screenshots)
-            .withData(parameters.data)
-            .withGoal(parameters.goal)
-            .withOverview(parameters.overview)
-            .withDetails(parameters.details);
+        for await (const request of stream) {
+            const handshake = request as HypothesesRequest;
+            prompt
+                .withGoal(handshake.goal)
+                .withOverview(handshake.overview)
+                .withDetails(handshake.details)
+                .withScreenshots(request.screenshots ?? [])
+                .withData(request.data ?? []);
+            break;
+        }
 
         const hypotheses = await prompt.request();
 

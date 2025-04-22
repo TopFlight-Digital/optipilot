@@ -208,7 +208,7 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
         ),
 
         businessInfoPrompt: {
-            request: async () => {
+            request: async() => {
                 return analyze(domain.value || ``);
             },
         },
