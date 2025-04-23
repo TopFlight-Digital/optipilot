@@ -157,6 +157,7 @@ export class HypothesesPrompt extends Prompt {
 
     private async dataMessages(): Promise<ThreadCreateParams.Message[]> {
         const fileIds = await Promise.all(this.data.map(async file => {
+            console.log(`file`, JSON.stringify(file));
             this.recordProgress();
 
             const response = await this.client.files.create({
@@ -202,23 +203,10 @@ export class HypothesesPrompt extends Prompt {
         ];
     }
 
-    public async request(message?: string, threadId?: string): Promise<Hypothesis[]> {
-        this.threadId = threadId ?? undefined;
-        this.recordProgress();
-
-        const hypotheses = await (this.threadId ? this.sendFeedback(message) : this.analyze());
-
-        console.log(`hypotheses`, hypotheses);
-        this.recordProgress();
-
-        return hypotheses;
-    }
-
-    private async sendFeedback(message?: string): Promise<Hypothesis[]> {
+    public async sendFeedback(message?: string): Promise<Hypothesis[]> {
         if (!this.threadId) {
             throw new Error(`Thread ID is required`);
         }
-
         this.recordProgress();
 
         const response = await this.client.beta.threads.runs.create(
@@ -241,7 +229,7 @@ export class HypothesesPrompt extends Prompt {
         let streams = 0;
 
         for await (const message of response) {
-            console.log(`message3`, message);
+            // console.log(`message3`, message);
             if (!(++streams % 25)) this.recordProgress();
 
             if (message.event === `thread.message.completed`) {
@@ -252,7 +240,7 @@ export class HypothesesPrompt extends Prompt {
         return [];
     }
 
-    private async analyze(): Promise<Hypothesis[]> {
+    public async analyze(): Promise<Hypothesis[]> {
         let hypotheses: Hypothesis[] = [];
         const messages = await this.messages();
         this.recordProgress(`Analysing data for tailored improvements`);
@@ -275,12 +263,13 @@ export class HypothesesPrompt extends Prompt {
             if (message.event === `thread.created`) {
                 this.threadId = message.data.id;
             }
-            console.log(`message1`, message);
+            // console.log(`message1`, message);
         }
 
         this.recordProgress();
-
+        console.log(`preparing dadata`);
         const dataMessages = await this.dataMessages();
+        console.log(`dataMessages`, dataMessages);
         this.recordProgress();
 
         const dataResponse = await this.client.beta.threads.runs.create(
@@ -298,7 +287,7 @@ export class HypothesesPrompt extends Prompt {
 
         for await (const message of dataResponse) {
             if (!(++streams % 25)) this.recordProgress();
-            console.log(`message5`, message);
+            // console.log(`message5`, message);
         }
 
         this.recordProgress();
@@ -349,7 +338,7 @@ OPTIPILOT!`,
         for await (const message of response) {
             if (!(++streams % 25)) this.recordProgress();
 
-            console.log(`message2`, message);
+            // console.log(`message2`, message);
             if (message.event === `thread.message.completed`) {
                 hypotheses = JSON.parse(message.data.content[0].text.value);
             }
@@ -379,7 +368,7 @@ OPTIPILOT!`,
         for await (const message of refinedResponse) {
             if (!(++streams % 25)) this.recordProgress();
 
-            console.log(`message3`, message);
+            // console.log(`message3`, message);
             if (message.event === `thread.message.completed`) {
                 hypotheses = JSON.parse(message.data.content[0].text.value);
             }
@@ -438,10 +427,43 @@ export const generateHypotheses = api.streamInOut<HypothesesRequest, HypothesesR
                 .withDetails(handshake.details)
                 .withScreenshots(request.screenshots ?? [])
                 .withData(request.data ?? []);
+            console.log(`handshake`, request.data);
+
             break;
         }
 
-        const hypotheses = await prompt.request();
+        const hypotheses = await prompt.analyze();
+
+        await stream.send({ hypotheses });
+        await stream.close();
+    },
+);
+
+interface HypothesesFeedbackRequest {
+    threadId: string;
+    message: string;
+}
+
+interface HypothesesFeedbackResponse {
+    hypotheses?: Hypothesis[];
+    message?: string;
+}
+
+export const sendFeedback = api.streamOut<HypothesesFeedbackRequest, HypothesesFeedbackResponse>(
+    { expose: true },
+    async(parameters: HypothesesFeedbackRequest, stream) => {
+        const prompt = new HypothesesPrompt(
+            message => {
+                stream.send({ message: message ?? `` });
+            },
+            () => {},
+            assistantId(),
+            openaiApiKey(),
+        );
+
+        prompt.threadId = parameters.threadId;
+
+        const hypotheses = await prompt.sendFeedback(parameters.message);
 
         await stream.send({ hypotheses });
         await stream.close();

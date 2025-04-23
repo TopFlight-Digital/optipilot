@@ -69,23 +69,41 @@ export namespace prompt {
         message?: string
     }
 
+    export interface HypothesesFeedbackRequest {
+        threadId: string
+        message: string
+    }
+
+    export interface HypothesesFeedbackResponse {
+        hypotheses?: Hypothesis[]
+        message?: string
+    }
+
     export interface HypothesesRequest {
-        screenshots?: string[];
-        data?: any[];
-        goal?: string;
-        overview?: string;
-        details?: string;
+        goal: string
+        overview: string
+        details: string
+        screenshots?: string[]
+        data?: any[]
     }
 
     export interface HypothesesResponse {
         hypotheses?: Hypothesis[]
         message?: string
-        threadId?: string;
+        threadId?: string
     }
 
     export interface Hypothesis {
         title: string
         description: string
+    }
+
+    export interface ScanTitleRequest {
+        threadId: string
+    }
+
+    export interface ScanTitleResponse {
+        title: string
     }
 
     export class ServiceClient {
@@ -103,6 +121,22 @@ export namespace prompt {
 
         public async generateHypotheses(): Promise<StreamInOut<HypothesesRequest, HypothesesResponse>> {
             return await this.baseClient.createStreamInOut(`/prompt.generateHypotheses`)
+        }
+
+        public async generateTitle(params: ScanTitleRequest): Promise<ScanTitleResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/prompt.generateTitle`, JSON.stringify(params))
+            return await resp.json() as ScanTitleResponse
+        }
+
+        public async sendFeedback(params: HypothesesFeedbackRequest): Promise<StreamIn<HypothesesFeedbackResponse>> {
+            // Convert our params into the objects we need for the request
+            const query = makeRecord<string, string | string[]>({
+                message:  params.message,
+                threadId: params.threadId,
+            })
+
+            return await this.baseClient.createStreamIn(`/prompt.sendFeedback`, {query})
         }
     }
 }
