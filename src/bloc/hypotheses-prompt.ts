@@ -32,11 +32,6 @@ export class HypothesesPrompt extends Prompt {
         this.onSetThreadId = onSetThreadId;
     }
 
-    private client = new OpenAI({
-        apiKey: OPENAI_API_KEY,
-        dangerouslyAllowBrowser: true,
-    });
-
     private screenshots: string[] = [];
 
     private goal?: string;
@@ -114,35 +109,23 @@ export class HypothesesPrompt extends Prompt {
 
         this.recordProgress();
 
-        const response = await this.client.beta.threads.runs.create(
-            this.threadId,
-            {
-                model: this.model,
-                assistant_id: ASSISTANT_ID,
-                additional_messages: [
-                    user`Now please return new hypotheses based on feedback provided below. Change only the ones that my feedback pertains to. Leave others intact but still return them in the same order as before.
+        const client = new Client(API_SERVER_URL);
+        const stream = await client.prompt.sendFeedback({
+            threadId: this.threadId,
+            message: message || ``,
+        });
 
-                        Feedback:
-                        ${message}
-                        OPTIPILOT!`,
-                ],
-                stream: true,
-            },
-        );
-
-        this.recordProgress();
-        let streams = 0;
-
-        for await (const message of response) {
-            console.log(`message3`, message);
-            if (!(++streams % 25)) this.recordProgress();
-
-            if (message.event === `thread.message.completed`) {
-                return JSON.parse(message.data.content[0].text.value);
+        let hypotheses: Hypothesis[] = [];
+        for await (const response of stream) {
+            if (response.hypotheses) {
+                hypotheses = response.hypotheses;
+            }
+            if (Object.prototype.hasOwnProperty.call(response, `message`)) {
+                this.recordProgress(response.message);
             }
         }
 
-        return [];
+        return hypotheses;
     }
 
     private async analyze(): Promise<Hypothesis[]> {
