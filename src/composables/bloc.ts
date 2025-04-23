@@ -1,15 +1,14 @@
 import { HypothesesPrompt, Hypothesis } from "@/bloc/hypotheses-prompt";
 import { ScanTitlePrompt } from "@/bloc/scan-title-prompt";
+import { BusinessInfoPrompt } from "@/bloc/business-info-prompt.ts";
 import { dataUrlToFileInstance, fileToDataUrl } from "@/bloc/upload";
 import { BREAKPOINTS, DEVICE_TYPE_OPTIONS, DeviceType } from "@/constants";
 import { Body, Meta, UppyFile } from "@uppy/core";
 import useVuelidate from "@vuelidate/core";
 import { required } from "@vuelidate/validators";
-import { useBusinessInfo } from "./business-info";
 
 function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
     const { domain } = useTab(tab);
-    const { analyze } = useBusinessInfo();
 
     function key(value: TemplateStringsArray) {
         return `${domain.value ?? ``}.${value[0]}`;
@@ -207,11 +206,7 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
             (value?: string) => (bloc.threadId = value),
         ),
 
-        businessInfoPrompt: {
-            request: async() => {
-                return analyze(domain.value || ``);
-            },
-        },
+        businessInfoPrompt: new BusinessInfoPrompt(domain.value ?? ``),
 
         threadId: useStorage(
             key`threadId`,

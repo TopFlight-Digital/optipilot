@@ -1,21 +1,10 @@
-import { DEFAULT_MODEL } from "@/constants";
-import OpenAI from "openai";
-import { user } from "./message";
 import { Prompt } from "./prompt";
 import Client from "../composables/client";
+import { fileToDataUrl } from "./upload";
 
 export type Hypothesis = {
     title: string;
     description: string;
-}
-
-function system(strings: TemplateStringsArray, ...values: any[]) {
-    const content = strings.reduce((accumulator, string_, index) => accumulator + string_ + (values[index] || ``), ``);
-
-    return {
-        role: `system`,
-        content: content.trim(),
-    } as const;
 }
 
 type RecordProgress = (message?: string) => void;
@@ -132,12 +121,14 @@ export class HypothesesPrompt extends Prompt {
         const client = new Client(API_SERVER_URL);
         const stream = await client.prompt.generateHypotheses();
 
+        const serializedData = await Promise.all(this.data.map(file => fileToDataUrl(file)));
+
         await stream.send({
             goal: this.goal || ``,
             overview: this.overview || ``,
             details: this.details || ``,
             screenshots: this.screenshots,
-            data: this.data,
+            data: serializedData,
         });
 
         let hypotheses: Hypothesis[] = [];
@@ -152,14 +143,8 @@ export class HypothesesPrompt extends Prompt {
             if (Object.prototype.hasOwnProperty.call(response, `message`)) {
                 this.recordProgress(response.message);
             }
-
         }
 
         return hypotheses;
     }
-
-    private get model() {
-        return DEFAULT_MODEL;
-    }
-
 }

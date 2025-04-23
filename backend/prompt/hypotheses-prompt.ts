@@ -15,15 +15,6 @@ export type Hypothesis = {
     description: string;
 }
 
-function system(strings: TemplateStringsArray, ...values: any[]) {
-    const content = strings.reduce((accumulator, string_, index) => accumulator + string_ + (values[index] || ``), ``);
-
-    return {
-        role: `system`,
-        content: content.trim(),
-    } as const;
-}
-
 type RecordProgress = (message?: string) => void;
 type OnSetThreadId = (threadId?: string) => void;
 
@@ -157,7 +148,6 @@ export class HypothesesPrompt extends Prompt {
 
     private async dataMessages(): Promise<ThreadCreateParams.Message[]> {
         const fileIds = await Promise.all(this.data.map(async file => {
-            console.log(`file`, JSON.stringify(file));
             this.recordProgress();
 
             const response = await this.client.files.create({
@@ -240,6 +230,7 @@ export class HypothesesPrompt extends Prompt {
         return [];
     }
 
+    // eslint-disable-next-line sonarjs/cognitive-complexity
     public async analyze(): Promise<Hypothesis[]> {
         let hypotheses: Hypothesis[] = [];
         const messages = await this.messages();
@@ -393,7 +384,7 @@ interface HypothesesRequest {
     overview: string;
     details: string;
     screenshots?: string[];
-    data?: any[];
+    data?: string[];
 }
 
 interface HypothesesResponse {
@@ -421,14 +412,14 @@ export const generateHypotheses = api.streamInOut<HypothesesRequest, HypothesesR
 
         for await (const request of stream) {
             const handshake = request as HypothesesRequest;
+            const files = handshake.data ? await Promise.all(handshake.data.map(dataUrl => dataUrlToFileInstance(dataUrl))) : [];
+
             prompt
                 .withGoal(handshake.goal)
                 .withOverview(handshake.overview)
                 .withDetails(handshake.details)
                 .withScreenshots(request.screenshots ?? [])
-                .withData(request.data ?? []);
-            console.log(`handshake`, request.data);
-
+                .withData(files);
             break;
         }
 

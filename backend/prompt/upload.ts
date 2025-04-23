@@ -18,16 +18,6 @@ export async function dataUrlToFileInstance(dataUrl: string): Promise<File> {
     });
 }
 
-export async function fileToDataUrl(file: File) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.addEventListener(`load`, () => resolve(reader.result));
-        reader.addEventListener(`error`, reject);
-
-        reader.readAsDataURL(file);
-    });
-}
-
 export function isImage(file: File) {
     return file.type.match(`image/`);
 }
