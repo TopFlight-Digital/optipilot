@@ -81,12 +81,10 @@ export class HypothesesPrompt extends Prompt {
 
     public async request(message?: string, threadId?: string): Promise<Hypothesis[]> {
         this.threadId = threadId ?? undefined;
-        this.recordProgress();
 
         const hypotheses = await (this.threadId ? this.sendFeedback(message) : this.analyze());
 
         console.log(`hypotheses`, hypotheses);
-        this.recordProgress();
 
         return hypotheses;
     }
@@ -95,8 +93,6 @@ export class HypothesesPrompt extends Prompt {
         if (!this.threadId) {
             throw new Error(`Thread ID is required`);
         }
-
-        this.recordProgress();
 
         const client = new Client(API_SERVER_URL);
         const stream = await client.prompt.sendFeedback({
