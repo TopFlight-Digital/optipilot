@@ -249,7 +249,7 @@ export class HypothesesPrompt extends Prompt {
         let streams = 0;
 
         for await (const message of stream) {
-            if (!(++streams % 25)) this.recordProgress();
+            if (!(++streams % 50)) this.recordProgress();
 
             if (message.event === `thread.created`) {
                 this.threadId = message.data.id;
@@ -258,9 +258,7 @@ export class HypothesesPrompt extends Prompt {
         }
 
         this.recordProgress();
-        console.log(`preparing dadata`);
         const dataMessages = await this.dataMessages();
-        console.log(`dataMessages`, dataMessages);
         this.recordProgress();
 
         const dataResponse = await this.client.beta.threads.runs.create(
@@ -277,7 +275,7 @@ export class HypothesesPrompt extends Prompt {
         streams = 0;
 
         for await (const message of dataResponse) {
-            if (!(++streams % 25)) this.recordProgress();
+            if (!(++streams % 50)) this.recordProgress();
             // console.log(`message5`, message);
         }
 
@@ -327,7 +325,7 @@ OPTIPILOT!`,
         streams = 0;
 
         for await (const message of response) {
-            if (!(++streams % 25)) this.recordProgress();
+            if (!(++streams % 27)) this.recordProgress();
 
             // console.log(`message2`, message);
             if (message.event === `thread.message.completed`) {
@@ -357,7 +355,7 @@ OPTIPILOT!`,
         streams = 0;
 
         for await (const message of refinedResponse) {
-            if (!(++streams % 25)) this.recordProgress();
+            if (!(++streams % 50)) this.recordProgress();
 
             // console.log(`message3`, message);
             if (message.event === `thread.message.completed`) {
