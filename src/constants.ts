@@ -1,5 +1,3 @@
-import type { ChatCompletionMessageParam, ChatModel } from "openai/resources/index.mjs";
-
 export const DUMMY_TAB = {
     id: -1,
     index: -1,
@@ -21,14 +19,6 @@ export const DUMMY_TAB = {
     selected: false,
     groupId: -1,
 } as const satisfies chrome.tabs.Tab;
-
-export const DEFAULT_MODEL = `gpt-4o` as const satisfies ChatModel;
-export const DEFAULT_HYPOTHESES_CAP = 5 as const;
-
-export const DESERIALIZABLE_OUTPUT_PROMPT = {
-    role: `system`,
-    content: `Returning your response, omit markdown tokens`.trim(),
-} as const satisfies ChatCompletionMessageParam;
 
 export const DEVICE_TYPE_OPTIONS = [
     {
