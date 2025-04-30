@@ -1,7 +1,7 @@
 import { DEFAULT_HYPOTHESES_CAP, DEFAULT_MODEL } from "./constants";
 import OpenAI from "openai";
-import { ThreadCreateParams } from "openai/resources/beta/index.mjs";
-import { ImageFileContentBlock } from "openai/resources/beta/threads/messages.mjs";
+import type { ThreadCreateParams } from "openai/resources/beta/index.mjs";
+import type { ImageFileContentBlock } from "openai/resources/beta/threads/messages.mjs";
 import { cluster } from "radash";
 import { user } from "./message";
 import { Prompt } from "./prompt";
