@@ -1,0 +1,13 @@
+{
+    "$schema": "https://encore.dev/schemas/infra.schema.json",
+    "metadata": {
+      "app_id": "optipilot-api",
+      "env_name": "production",
+      "env_type": "production",
+      "cloud": "do"
+    },
+    "secrets": {
+      "AssistantID": {"$env": "ASSISTANT_ID"},
+      "OpenAIAPIKey": {"$env": "OPENAI_API_KEY"}
+    }
+  }
