@@ -119,7 +119,7 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
             step: 1,
             message: ref(``),
             numerator: ref(0),
-            denominator: computed(() => Math.min(100, screenshotsToTake.value * 20)),
+            denominator: computed(() => Math.min(200, screenshotsToTake.value * 40)),
 
             tick(message?: string) {
                 const { numerator, denominator } = bloc.progress;
