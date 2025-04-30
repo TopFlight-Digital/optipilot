@@ -11,6 +11,7 @@ export default defineConfig({
         OPENAI_API_KEY: JSON.stringify(``),
         PDF_MONKEY_API_KEY: JSON.stringify(``),
         DOWNLOADABLE_TEMPLATE_ID: JSON.stringify(``),
+        API_SERVER_URL: JSON.stringify(``),
     },
     plugins: [
         vue(),
