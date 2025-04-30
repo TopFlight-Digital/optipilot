@@ -249,7 +249,7 @@ export class HypothesesPrompt extends Prompt {
         let streams = 0;
 
         for await (const message of stream) {
-            if (!(++streams % 50)) this.recordProgress();
+            if (!(++streams % 17)) this.recordProgress();
 
             if (message.event === `thread.created`) {
                 this.threadId = message.data.id;
@@ -275,7 +275,7 @@ export class HypothesesPrompt extends Prompt {
         streams = 0;
 
         for await (const message of dataResponse) {
-            if (!(++streams % 50)) this.recordProgress();
+            if (!(++streams % 17)) this.recordProgress();
             // console.log(`message5`, message);
         }
 
@@ -355,7 +355,7 @@ OPTIPILOT!`,
         streams = 0;
 
         for await (const message of refinedResponse) {
-            if (!(++streams % 50)) this.recordProgress();
+            if (!(++streams % 17)) this.recordProgress();
 
             // console.log(`message3`, message);
             if (message.event === `thread.message.completed`) {
