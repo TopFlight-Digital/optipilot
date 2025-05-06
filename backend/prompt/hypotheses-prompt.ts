@@ -17,16 +17,20 @@ export type Hypothesis = {
 
 type RecordProgress = (message?: string) => void;
 type OnSetThreadId = (threadId?: string) => void;
+type OnEror = (error?: string) => void;
 
 export class HypothesesPrompt extends Prompt {
     private recordProgress: RecordProgress;
 
     private onSetThreadId: OnSetThreadId;
 
-    constructor(recordProgress: RecordProgress, onSetThreadId: OnSetThreadId, assistantID: string, openAIAPIKey: string) {
+    private onError: OnEror;
+
+    constructor(recordProgress: RecordProgress, onSetThreadId: OnSetThreadId, onError: OnEror, assistantID: string, openAIAPIKey: string) {
         super();
         this.recordProgress = recordProgress;
         this.onSetThreadId = onSetThreadId;
+        this.onError = onError;
         this.assistantID = assistantID;
         this.client = new OpenAI({
             apiKey: openAIAPIKey,
@@ -232,140 +236,145 @@ export class HypothesesPrompt extends Prompt {
 
     // eslint-disable-next-line sonarjs/cognitive-complexity
     public async analyze(): Promise<Hypothesis[]> {
-        let hypotheses: Hypothesis[] = [];
-        const messages = await this.messages();
-        this.recordProgress(`Analysing data for tailored improvements`);
+        try {
+            let hypotheses: Hypothesis[] = [];
+            const messages = await this.messages();
+            this.recordProgress(`Analysing data for tailored improvements`);
 
-        const stream = await this.client.beta.threads.createAndRun({
-            assistant_id: this.assistantID,
-            thread: {
-                messages,
-            },
-            model: this.model,
-            stream: true,
-        });
-
-        this.recordProgress();
-        let streams = 0;
-
-        for await (const message of stream) {
-            if (!(++streams % 17)) this.recordProgress();
-
-            if (message.event === `thread.created`) {
-                this.threadId = message.data.id;
-            }
-            // console.log(`message1`, message);
-        }
-
-        this.recordProgress();
-        const dataMessages = await this.dataMessages();
-        this.recordProgress();
-
-        const dataResponse = await this.client.beta.threads.runs.create(
-            this.threadId!,
-            {
-                model: this.model,
+            const stream = await this.client.beta.threads.createAndRun({
                 assistant_id: this.assistantID,
-                additional_messages: dataMessages,
-                stream: true,
-            },
-        );
-
-        this.recordProgress();
-        streams = 0;
-
-        for await (const message of dataResponse) {
-            if (!(++streams % 17)) this.recordProgress();
-            // console.log(`message5`, message);
-        }
-
-        this.recordProgress();
-
-        const goalMessages = this.goal ? [
-            user`The goal of my product: ${this.goal}`,
-        ] as const : [];
-
-        const overviewMessages = this.overview ? [
-            user`Overview of my product: ${this.overview}`,
-        ] as const : [];
-
-        const detailsMessages = this.details ? [
-            user`Details of this page: ${this.details}`,
-        ] as const : [];
-
-        const initialMessages = [
-            ...goalMessages,
-            ...overviewMessages,
-            ...detailsMessages,
-        ];
-
-        this.recordProgress(`Crafting smarter suggestions for you`);
-
-        const response = await this.client.beta.threads.runs.create(
-            this.threadId!,
-            {
+                thread: {
+                    messages,
+                },
                 model: this.model,
-                assistant_id: this.assistantID,
-                additional_messages: [
-                    ...initialMessages,
-                    user`Come up with up to ${this.cap} ideas for how to improve site to achieve the provided goal, based on the information and screenshots provided. In their descriptions try to:
-- refer to specific place on "the Page" like 'above' or 'bottom' etc — if applicable for given idea
-- if you're referring to a specific section on the Page, use the section's heading
-- highlight if a section is a site's header or footer
-- describe why the new experience would be better than the current one by comparing
-
-Please work as if it's a matter of life and death and we have limited time to fulfill the goal. We need ideas that will have maximum impact with balanced effort.
-OPTIPILOT!`,
-                ],
                 stream: true,
-            },
-        );
+            });
 
-        this.recordProgress();
-        streams = 0;
+            this.recordProgress();
+            let streams = 0;
 
-        for await (const message of response) {
-            if (!(++streams % 27)) this.recordProgress();
+            for await (const message of stream) {
+                if (!(++streams % 17)) this.recordProgress();
 
-            // console.log(`message2`, message);
-            if (message.event === `thread.message.completed`) {
-                hypotheses = JSON.parse(message.data.content[0].text.value);
+                if (message.event === `thread.created`) {
+                    this.threadId = message.data.id;
+                }
+                // console.log(`message1`, message);
             }
-        }
 
-        console.log(`Original hypotheses: ${JSON.stringify(hypotheses, null, 2)}`);
+            this.recordProgress();
+            const dataMessages = await this.dataMessages();
+            this.recordProgress();
 
-        this.recordProgress();
+            const dataResponse = await this.client.beta.threads.runs.create(
+                this.threadId!,
+                {
+                    model: this.model,
+                    assistant_id: this.assistantID,
+                    additional_messages: dataMessages,
+                    stream: true,
+                },
+            );
 
-        const refinedResponse = await this.client.beta.threads.runs.create(
-            this.threadId!,
-            {
-                model: this.model,
-                assistant_id: this.assistantID,
-                additional_messages: [
-                    user`
-                    Now please return the exact same message as before, just omit very generic ideas especially ones that say no more than "just make it more eye-catching bro". Make an effort to replace these with more thoughtful / insightful ideas.
-                    `,
-                ],
-                stream: true,
-            },
-        );
+            this.recordProgress();
+            streams = 0;
 
-        this.recordProgress();
-        streams = 0;
-
-        for await (const message of refinedResponse) {
-            if (!(++streams % 17)) this.recordProgress();
-
-            // console.log(`message3`, message);
-            if (message.event === `thread.message.completed`) {
-                hypotheses = JSON.parse(message.data.content[0].text.value);
+            for await (const message of dataResponse) {
+                if (!(++streams % 17)) this.recordProgress();
+                // console.log(`message5`, message);
             }
+
+            this.recordProgress();
+
+            const goalMessages = this.goal ? [
+                user`The goal of my product: ${this.goal}`,
+            ] as const : [];
+
+            const overviewMessages = this.overview ? [
+                user`Overview of my product: ${this.overview}`,
+            ] as const : [];
+
+            const detailsMessages = this.details ? [
+                user`Details of this page: ${this.details}`,
+            ] as const : [];
+
+            const initialMessages = [
+                ...goalMessages,
+                ...overviewMessages,
+                ...detailsMessages,
+            ];
+
+            this.recordProgress(`Crafting smarter suggestions for you`);
+
+            const response = await this.client.beta.threads.runs.create(
+                this.threadId!,
+                {
+                    model: this.model,
+                    assistant_id: this.assistantID,
+                    additional_messages: [
+                        ...initialMessages,
+                        user`Come up with up to ${this.cap} ideas for how to improve site to achieve the provided goal, based on the information and screenshots provided. In their descriptions try to:
+    - refer to specific place on "the Page" like 'above' or 'bottom' etc — if applicable for given idea
+    - if you're referring to a specific section on the Page, use the section's heading
+    - highlight if a section is a site's header or footer
+    - describe why the new experience would be better than the current one by comparing
+
+    Please work as if it's a matter of life and death and we have limited time to fulfill the goal. We need ideas that will have maximum impact with balanced effort.
+    OPTIPILOT!`,
+                    ],
+                    stream: true,
+                },
+            );
+
+            this.recordProgress();
+            streams = 0;
+
+            for await (const message of response) {
+                if (!(++streams % 27)) this.recordProgress();
+
+                // console.log(`message2`, message);
+                if (message.event === `thread.message.completed`) {
+                    hypotheses = JSON.parse(message.data.content[0].text.value);
+                }
+            }
+
+            console.log(`Original hypotheses: ${JSON.stringify(hypotheses, null, 2)}`);
+
+            this.recordProgress();
+
+            const refinedResponse = await this.client.beta.threads.runs.create(
+                this.threadId!,
+                {
+                    model: this.model,
+                    assistant_id: this.assistantID,
+                    additional_messages: [
+                        user`
+                        Now please return the exact same message as before, just omit very generic ideas especially ones that say no more than "just make it more eye-catching bro". Make an effort to replace these with more thoughtful / insightful ideas.
+                        `,
+                    ],
+                    stream: true,
+                },
+            );
+
+            this.recordProgress();
+            streams = 0;
+
+            for await (const message of refinedResponse) {
+                if (!(++streams % 17)) this.recordProgress();
+
+                // console.log(`message3`, message);
+                if (message.event === `thread.message.completed`) {
+                    hypotheses = JSON.parse(message.data.content[0].text.value);
+                }
+            }
+
+            this.recordProgress();
+
+            return hypotheses;
+        } catch (error) {
+            this.onError(`Error analyzing hypotheses: ${error}`);
+            throw error;
         }
-
-        this.recordProgress();
-
-        return hypotheses;
     }
 
     private get model() {
@@ -389,6 +398,7 @@ interface HypothesesResponse {
     hypotheses?: Hypothesis[];
     message?: string;
     threadId?: string;
+    error?: string
 }
 
 const openaiApiKey = secret("OpenAIAPIKey");
@@ -403,6 +413,10 @@ export const generateHypotheses = api.streamInOut<HypothesesRequest, HypothesesR
             },
             value => {
                 stream.send({ threadId: value });
+            },
+            error => {
+                stream.send({ error: error ?? `` });
+                stream.close();
             },
             assistantId(),
             openaiApiKey(),
@@ -436,6 +450,7 @@ interface HypothesesFeedbackRequest {
 interface HypothesesFeedbackResponse {
     hypotheses?: Hypothesis[];
     message?: string;
+    error?: string;
 }
 
 export const sendFeedback = api.streamOut<HypothesesFeedbackRequest, HypothesesFeedbackResponse>(
@@ -446,6 +461,10 @@ export const sendFeedback = api.streamOut<HypothesesFeedbackRequest, HypothesesF
                 stream.send({ message: message ?? `` });
             },
             () => {},
+            error => {
+                stream.send({ error: error ?? `` });
+                stream.close();
+            },
             assistantId(),
             openaiApiKey(),
         );
