@@ -76,6 +76,7 @@ export namespace prompt {
     export interface HypothesesFeedbackResponse {
         hypotheses?: Hypothesis[]
         message?: string
+        error?: string
     }
 
     export interface HypothesesRequest {
@@ -90,6 +91,7 @@ export namespace prompt {
         hypotheses?: Hypothesis[]
         message?: string
         threadId?: string
+        error?: string
     }
 
     export interface Hypothesis {
