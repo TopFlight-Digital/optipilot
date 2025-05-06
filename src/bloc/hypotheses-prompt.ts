@@ -9,16 +9,20 @@ export type Hypothesis = {
 
 type RecordProgress = (message?: string) => void;
 type OnSetThreadId = (threadId?: string) => void;
+type OnError = () => void;
 
 export class HypothesesPrompt extends Prompt {
     private recordProgress: RecordProgress;
 
     private onSetThreadId: OnSetThreadId;
 
-    constructor(recordProgress: RecordProgress, onSetThreadId: OnSetThreadId) {
+    private onError: OnError;
+
+    constructor(recordProgress: RecordProgress, onSetThreadId: OnSetThreadId, onError: OnError) {
         super();
         this.recordProgress = recordProgress;
         this.onSetThreadId = onSetThreadId;
+        this.onError = onError;
     }
 
     private screenshots: string[] = [];
@@ -105,6 +109,9 @@ export class HypothesesPrompt extends Prompt {
             if (response.hypotheses) {
                 hypotheses = response.hypotheses;
             }
+            if (response.error) {
+                this.onError();
+            }
             if (Object.prototype.hasOwnProperty.call(response, `message`)) {
                 this.recordProgress(response.message);
             }
@@ -135,6 +142,9 @@ export class HypothesesPrompt extends Prompt {
             }
             if (response.threadId) {
                 this.onSetThreadId(response.threadId);
+            }
+            if (response.error) {
+                this.onError();
             }
             if (Object.prototype.hasOwnProperty.call(response, `message`)) {
                 this.recordProgress(response.message);

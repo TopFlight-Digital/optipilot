@@ -204,6 +204,10 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
         prompt: new HypothesesPrompt(
             (message?: string) => bloc.progress.tick(message),
             (value?: string) => (bloc.threadId = value),
+            () => {
+                bloc.backendErrorOccured = true;
+                bloc.progress.finish();
+            },
         ),
 
         businessInfoPrompt: new BusinessInfoPrompt(domain.value ?? ``),
@@ -223,6 +227,13 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
         pending: ref(false),
 
         businessDetailsPending: ref(false),
+
+        backendErrorOccured: ref(false),
+
+        resetError: () => {
+            bloc.backendErrorOccured = false;
+            bloc.pending = false;
+        },
 
         async submit() {
             bloc.pending = true;
@@ -249,6 +260,10 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
             bloc.progress.tick();
 
             const results = await bloc.prompt.request();
+
+            if (bloc.backendErrorOccured) {
+                return;
+            }
 
             bloc.progress.finish();
 
@@ -289,6 +304,10 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
                 bloc.feedback.message,
                 scan?.value?.threadId || bloc.threadId,
             );
+
+            if (bloc.backendErrorOccured) {
+                return;
+            }
 
             bloc.progress.finish();
 

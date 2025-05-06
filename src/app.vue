@@ -3,6 +3,7 @@ import ProductView from '@/views/product.vue';
 import ScanView from '@/views/scan.vue';
 import LoadingView from '@/views/loading.vue';
 import AnalysisView from '@/views/analysis.vue';
+import ErrorView from '@/views/error.vue';
 
 const step = ref<`product` | `scan`>(`product`);
 
@@ -33,6 +34,11 @@ watchDeep(
     },
 );
 
+const resetError = () => {
+    bloc.resetError();
+    step.value = `product`;
+};
+
 </script>
 
 <template>
@@ -49,7 +55,15 @@ watchDeep(
     <backdrop-light />
 
     <div class="app__container">
-        <template v-if="!bloc.pending">
+        <template v-if="bloc.backendErrorOccured">
+            <div class="app__view">
+                <error-view
+                    @return="resetError"
+                />
+            </div>
+        </template>
+
+        <template v-else-if="!bloc.pending">
             <div
                 v-if="bloc.ready"
                 class="app__view"
