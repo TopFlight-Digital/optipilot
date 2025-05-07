@@ -32,7 +32,7 @@ export class ScanTitlePrompt extends Prompt {
                 model: this.model,
                 assistant_id: this.assistantID,
                 additional_messages: [
-                    user`Please provide a title for this scan. Do not mention site name. 4 words max. Return the title as a JSON string, e.g. \`\`\`"Scan 1"\`\`\``,
+                    user`Please provide a title for this scan. Do not mention site name. 4 words max. Return the title as a JSON string, e.g. "Scan 1"`,
                 ],
                 stream: true,
             },
