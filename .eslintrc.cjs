@@ -28,6 +28,18 @@ module.exports = {
             files: [`*.vue`],
             parser: `vue-eslint-parser`,
         },
+        {
+            // Match all .js/.jsx/.ts/.tsx files in the immediate root directory "special-dir"
+            files: ['backend/**/*.ts'],
+
+            // You can also further narrow by excludedFiles if needed:
+            // excludedFiles: '*.test.js',
+
+            // And then set the rules you want for this dir
+            rules: {
+                quotes: [`warn`, `double`],
+            },
+        },
     ],
     rules: {
         "unicorn/prefer-string-replace-all": `off`,
