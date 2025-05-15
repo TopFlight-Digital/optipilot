@@ -8,6 +8,8 @@
     },
     "secrets": {
       "AssistantID": {"$env": "ASSISTANT_ID"},
-      "OpenAIAPIKey": {"$env": "OPENAI_API_KEY"}
+      "OpenAIAPIKey": {"$env": "OPENAI_API_KEY"},
+      "PdfMonkeyApiKey": {"$env": "PDF_MONKEY_API_KEY"},
+      "DownloadableTemplateId": {"$env": "DOWNLOADABLE_TEMPLATE_ID"}
     }
-  }
+}
