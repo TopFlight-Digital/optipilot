@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import download from '@/icons/download.svg';
 import backwards from '@/icons/backwards.svg';
+import Client from "@/composables/client.ts";
 
 const props = defineProps({
     index: {
@@ -33,44 +34,23 @@ const pending = ref(false);
 async function downloadProposal() {
     pending.value = true;
 
-    const body = {
-        document: {
-            document_template_id: DOWNLOADABLE_TEMPLATE_ID,
-            status: `pending`,
-            payload: {
-                title: item.value.title,
-                description: item.value.description,
-            },
-        },
-    };
+    const client = new Client(API_SERVER_URL);
 
-    const response = await fetch(`https://api.pdfmonkey.io/api/v1/documents`, {
-        body: JSON.stringify(body),
-        headers: {
-            Authorization: `Bearer ${PDF_MONKEY_API_KEY}`,
-            "Content-Type": `application/json`,
-        },
-        method: `POST`,
+    const response = await client.proposal.generate({
+        title: item.value.title,
+        description: item.value.description,
     });
 
-    const data = await response.json();
-    const id = data.document.id;
+    const { id } = response;
 
     const routine = setInterval(async() => {
-        const response = await fetch(`https://api.pdfmonkey.io/api/v1/documents/${id}`, {
-            headers: {
-                Authorization: `Bearer ${PDF_MONKEY_API_KEY}`,
-            },
-        });
+        const response = await client.proposal.status({ id });
+        const { url, status } = response;
 
-        const data = await response.json();
-        console.log(`checking:`, data);
-
-        if (data.document.status === `success`) {
+        if (url && status === `success`) {
             clearInterval(routine);
-            console.log(data);
             pending.value = false;
-            window.open(data.document.download_url);
+            window.open(url);
         }
     }, 300);
 
