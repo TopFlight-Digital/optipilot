@@ -45,7 +45,7 @@ const bloc = defineBloc();
                     <app-input
                         v-model="product.details"
                         label="Page details"
-                        hint="Optionally provide some additional details about this page."
+                        hint="Optionally provide any additional details about this page — e.g. current conversion rates, click-through rates, traffic volume or sources, bounce rate, user demographics, etc."
                         type="textarea"
                         :required="product.$validation.details.required"
                     />
