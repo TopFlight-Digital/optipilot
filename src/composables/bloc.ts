@@ -395,10 +395,15 @@ function resizeCurrentTab(width: number, height: number) {
             const updateInfo: chrome.windows.UpdateInfo = {
                 width,
                 height,
+                top: 0,
+                left: 0,
                 focused: false,
             };
 
             await chrome.windows.update(window.id!, updateInfo);
+            // HACK: Reapplying in case the window is initially in fullscreen mode.
+            await chrome.windows.update(window.id!, updateInfo);
+
             resolve();
         });
     });
