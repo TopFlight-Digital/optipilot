@@ -37,6 +37,13 @@ const tab = useTab();
                 :numerator="progress.numerator"
                 :denominator="progress.denominator"
             />
+
+            <app-copy
+                type="Label 2"
+                color="cd"
+                class="view__reminder"
+                v-text="`This will take a few minutes. Please don't close the extension popup.`"
+            />
         </div>
     </div>
 </template>
@@ -60,6 +67,10 @@ const tab = useTab();
 
     &__subheader {
         margin-top: -2rem;
+    }
+
+    &__reminder {
+        margin-top: -1rem;
     }
 
     &__progress {

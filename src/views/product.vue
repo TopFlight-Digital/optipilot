@@ -95,7 +95,7 @@ const bloc = defineBloc();
     }
 
     &__navigation {
-        padding-top: 6.25rem;
+        padding-top: 4rem;
         margin-bottom: -1.75rem;
         display: flex;
         flex-direction: column;
