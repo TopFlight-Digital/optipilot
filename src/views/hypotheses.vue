@@ -118,13 +118,13 @@ const scan = computed(() => scans.value[scanIndex.value]);
                         @click="scanIndex = undefined"
                     />
 
-                    <app-button
-                        label="Feedback"
-                        :icon=forward
-                        :variant="scan !== undefined ? `primary` : `secondary`"
-                        wide
-                        @click="scan ? emit(`edit`, scan.value.id) : emit(`edit`)"
-                    />
+<!--                    <app-button-->
+<!--                        label="Feedback"-->
+<!--                        :icon=forward-->
+<!--                        :variant="scan !== undefined ? `primary` : `secondary`"-->
+<!--                        wide-->
+<!--                        @click="scan ? emit(`edit`, scan.value.id) : emit(`edit`)"-->
+<!--                    />-->
                 </div>
             </app-scroll-view>
         </div>
