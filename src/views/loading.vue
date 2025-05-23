@@ -27,7 +27,7 @@ const tab = useTab();
             />
 
             <app-copy
-                type="Title/h4"
+                type="Title/h3"
                 color="cd"
                 v-text="progress.message"
             />
@@ -39,10 +39,10 @@ const tab = useTab();
             />
 
             <app-copy
-                type="Label 2"
+                type="Title/h4"
                 color="cd"
                 class="view__reminder"
-                v-text="`This will take a few minutes. Please don't close the extension popup.`"
+                v-text="`This will take a few minutes, please keep the extension pop-up open`"
             />
         </div>
     </div>
@@ -70,6 +70,8 @@ const tab = useTab();
     }
 
     &__reminder {
+        max-width: 56%;
+        text-align: center;
         margin-top: -1rem;
     }
 
