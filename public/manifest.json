@@ -9,7 +9,7 @@
     "description": "Supercharge your CRO with AI. Analyze your site and generate A/B test ideas to explore and evolve what works",
     "permissions": ["activeTab", "<all_urls>", "scripting", "tabs"],
     "host_permissions": ["<all_urls>"],
-    "version": "0.1.0",
+    "version": "1.0.0",
     "action": {
       "default_popup": "index.html",
       "default_icon": "icon.png"
