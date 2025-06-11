@@ -3,11 +3,11 @@ import { computed } from 'vue';
 
 const props = defineProps({
     items: {
-        type: Array as () => Array<{
+        type: Array as () => Readonly<Array<{
             slug: string;
             label: string;
             component?: Component;
-        }>,
+        }>>,
         required: true,
     },
     size: {

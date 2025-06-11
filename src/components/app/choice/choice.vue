@@ -1,13 +1,13 @@
 <script lang="ts" setup>
+import check_circle from '@/icons/check-circle.svg';
+import circle from '@/icons/circle.svg';
 import { FIELD_PROPS } from '../field/field';
 import type { Item } from './choice';
-import circle from '@/icons/circle.svg';
-import check_circle from '@/icons/check-circle.svg';
 
 defineProps({
     ...FIELD_PROPS,
     items: {
-        type: Array<Item>,
+        type: Array as () => Readonly<Item[]>,
         required: true,
     },
 });

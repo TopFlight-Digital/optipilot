@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import download from '@/icons/download.svg';
-import backwards from '@/icons/backwards.svg';
 import Client from "@/composables/client.ts";
+import backwards from '@/icons/backwards.svg';
+import download from '@/icons/download.svg';
 
 const props = defineProps({
     index: {
@@ -15,6 +15,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits<{
+    (event: `back`): void
     (event: `edit`): void
 }>();
 
@@ -64,6 +65,7 @@ async function downloadProposal() {
             <div class="view__header">
                 <app-copy
                     class="view__preheading"
+                    color="cd"
                     type="Button 2/label 1"
                     v-text="`Proposal ${index + 1}`"
                 />
@@ -152,4 +154,3 @@ async function downloadProposal() {
     }
 }
 </style>
-

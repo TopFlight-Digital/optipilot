@@ -1,6 +1,6 @@
+import { BusinessInfoPrompt } from "@/bloc/business-info-prompt.ts";
 import { HypothesesPrompt, Hypothesis } from "@/bloc/hypotheses-prompt";
 import { ScanTitlePrompt } from "@/bloc/scan-title-prompt";
-import { BusinessInfoPrompt } from "@/bloc/business-info-prompt.ts";
 import { dataUrlToFileInstance, fileToDataUrl } from "@/bloc/upload";
 import { BREAKPOINTS, DEVICE_TYPE_OPTIONS, DeviceType } from "@/constants";
 import { Body, Meta, UppyFile } from "@uppy/core";
@@ -252,7 +252,7 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
 
             bloc.prompt
                 .withScreenshots(bloc.screenshots)
-                .withData(bloc.scan.data.map(({ data }) => data))
+                .withData(bloc.scan.data.map(({ data }: { data: File[] }) => data))
                 .withGoal(bloc.scan.objective)
                 .withOverview(bloc.product.overview)
                 .withDetails(bloc.product.details);
@@ -333,6 +333,7 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
     };
 }
 
+// @ts-ignore
 const bloc = reactive(Object.assign(
     {} as ReturnType<typeof fields>,
     {
@@ -366,12 +367,13 @@ function isValidUrl(url?: string): boolean {
 export function initBloc(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
     Object.assign(bloc, fields(tab));
 
-    if (bloc.product.overview === `` && isValidUrl(tab.url)) {
+    if (bloc.product.overview === `` && isValidUrl(toValue(tab).url)) {
         bloc.businessDetailsPending = true;
-        bloc.businessInfoPrompt.request().then(text => {
+        bloc.businessInfoPrompt.request().then((text: string | undefined) => {
             if (!bloc.businessDetailsPending) {
                 return;
             }
+
             bloc.product.overview = text;
             bloc.businessDetailsPending = false;
         });

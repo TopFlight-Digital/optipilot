@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import HypothesesView from '@/views/hypotheses.vue';
 import FeedbackView from '@/views/feedback.vue';
-
-
+import HypothesesView from '@/views/hypotheses/index.vue';
+import { TabSlug } from './hypotheses';
 const view = ref(`hypotheses`);
 const { submitFeedback } = useBloc();
 const scanId = ref<string>();
@@ -12,7 +11,7 @@ function onEdit(id?: string) {
     view.value = `feedback`;
 }
 
-const tab = ref(`current`);
+const tab = ref<TabSlug>(`current`);
 </script>
 
 <template>
@@ -31,4 +30,3 @@ const tab = ref(`current`);
 
 <style lang="scss" scoped>
 </style>
-
