@@ -7,7 +7,7 @@ const props = defineProps({
         required: true,
     },
     date: {
-        type: String,
+        type: [String, Date],
         required: true,
     },
     title: {

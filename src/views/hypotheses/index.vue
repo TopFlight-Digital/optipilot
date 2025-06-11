@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import useScansByIds from '@/composables/scan';
-import forward from '@/icons/forward.svg';
 import backwards from '@/icons/backwards.svg';
+import forward from '@/icons/forward.svg';
 import HypothesisView from '@/views/hypothesis.vue';
+import { type TabSlug, tabs } from '.';
 
 const props = defineProps({
     tab: {
@@ -18,25 +19,22 @@ const emit = defineEmits<{
 
 const tabModel = useModel(props, `tab`);
 
-type TabSlug = typeof tabs[number][`slug`];
-
-const tabs = [
-    {
-        slug: `current`,
-        label: `Ideas`,
-    },
-    {
-        slug: `history`,
-        label: `History`,
-    },
-] as const;
-
 const bloc = useBloc();
 const hypothesisIndex = ref<number>();
 
 const scans = useScansByIds(bloc.scanIds);
 const scanIndex = ref<number>();
-const scan = computed(() => scans.value[scanIndex.value]);
+
+const scan = computed(() => {
+    const index = scanIndex.value;
+
+    if (index === undefined) {
+        return;
+    }
+
+    return scans.value[index];
+});
+
 </script>
 
 <template>
@@ -176,4 +174,3 @@ const scan = computed(() => scans.value[scanIndex.value]);
     }
 }
 </style>
-

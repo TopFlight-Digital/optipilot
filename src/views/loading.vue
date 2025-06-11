@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+// @ts-ignore
 const emit = defineEmits<{
     (event: `back`): void
     (event: `proceed`): void
@@ -81,4 +82,3 @@ const tab = useTab();
     }
 }
 </style>
-
