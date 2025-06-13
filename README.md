@@ -1,7 +1,5 @@
 # Optipilot
 
-Optipilot is a CRO experiment ideation tool built on top of OpenAI API encapsulated into a browser extension.
-
 Supercharge your CRO with AI. Analyze your site and generate A/B test ideas to explore and evolve what works
 
 OptiPilot is an Al-powered ideation extension that helps you improve your page conversion rate by recommending a series of hypotheses for A/B tests based on your page content, UI and business objectives. Whether you’re optimising for conversions, engagement, or usability, OptiPilot scans the page, considers your business goals, and delivers tailored suggestions for what to A/B test. It’s built for marketers, designers, and product teams who want faster, smarter ways to uncover what might move the needle.
