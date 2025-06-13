@@ -27,7 +27,7 @@ export function PreviewEnv(pr: number | string): BaseURL {
 }
 
 /**
- * Client is an API client for the 9rnxe Encore application.
+ * Client is an API client for the OptiPilot Encore application.
  */
 export default class Client {
     public readonly prompt: prompt.ServiceClient

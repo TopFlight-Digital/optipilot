@@ -1,4 +1,16 @@
-# Optipilot
+# OptiPilot
+
+<div align="center">
+ 
+  <p><a href="https://opensource.org/licenses/MPL-2.0">
+      <img alt="MPL-2.0 License" src="https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg" />
+  </a></p>
+  
+  <p><a href="https://chromewebstore.google.com/detail/optipilot/dmlphobmkbabbhpeflkgoljkojgioiai"><img src="https://developer.chrome.com/static/docs/webstore/branding/image/tbyBjqi7Zu733AAKA5n4.png" alt="Available in the Chrome Web Store" /></a></p>
+
+</div>
+
+---
 
 Supercharge your CRO with AI. Analyze your site and generate A/B test ideas to explore and evolve what works
 
@@ -6,85 +18,167 @@ OptiPilot is an Al-powered ideation extension that helps you improve your page c
 
 To get started, first navigate to the web page you want to analyse. Then open the OptiPilot extension, describe your product and page, enter your objective (e.g. increase form submissions), and select the device type. The extension will scan the page and return a set of testable ideas you can use to fuel experimentation.
 
-## Contribution technicals
+## Features
 
-### DX Features
+- 🔍 **Website Analysis**: Automatically analyze any website for conversion optimization opportunities
+- 🤖 **AI-Powered Hypotheses**: Generate intelligent A/B test ideas using OpenAI's GPT models
+- 🎯 **Targeted Suggestions**: Get specific, actionable recommendations based on your site's content
+- 📊 **Export Capabilities**: Generate professional PDF reports of your optimization ideas
+- 🌐 **Browser Extension**: Works seamlessly as you browse, no separate app needed
 
-- **Vue 3** for building reactive UIs.
-- **Storybook** for components preview.
-- **ESLint** for maintaining code quality and consistency (instead of prettier)
-- **Automatic import and component registration** using `unplugin-auto-import` and `unplugin-vue-components`.
+## Architecture
+
+OptiPilot consists of two main components:
+
+- **Frontend**: Vue 3 browser extension with TypeScript
+- **Backend**: Encore.ts API server for AI processing and report generation
 
 ### Prerequisites
 
-Before you begin, ensure you have the following requirements:
+Before you begin, ensure you have the following installed:
 
-- **Proto**: The toolchain for managing Node.js versions. Install it from [Proto](https://moonrepo.dev/docs/proto/install).
-- **Node.js**: Managed by `proto`, which enforces the latest LTS version *(v20.9.0)*.
-- **pnpm**: For managing dependencies. Install it from [pnpm](https://pnpm.io/installation)
+- **Proto**: The toolchain for managing Node.js versions. Install from [Proto](https://moonrepo.dev/docs/proto/install)
+- **Node.js**: Managed by `proto`, which enforces the latest LTS version *(v20.9.0)*
+- **pnpm**: For managing dependencies. Install from [pnpm](https://pnpm.io/installation)
+- **Docker**: Required for the backend database (if running backend locally)
 
 ### Setup
 
-1. Clone the repository:
+### 1. Clone the Repository
 
-   ```bash
-   git clone git@github.com:TopFlight-Digital/optipilot.git
-   ```
+```bash
+git clone https://github.com/your-org/optipilot.git
+cd optipilot
+```
 
-2. Navigate to the project directory:
+### 2. Install Dependencies
 
-   ```bash
-   cd optipilot
-   ```
+```bash
+pnpm install
+```
 
-3. Install dependencies:
+### 3. Environment Setup
 
-   ```bash
-   pnpm install
-   ```
+You'll need API keys for the following services:
+
+- **OpenAI API**: For AI-powered analysis ([Get API key](https://platform.openai.com/api-keys))
+- **PDF Monkey**: For report generation ([Sign up](https://www.pdfmonkey.io/))
+
+Create your environment configuration:
+
+```bash
+# Copy the example secrets file
+cp backend/.secrets.local.cue.example backend/.secrets.local.cue
+
+# Edit the file and add your API keys
+# backend/.secrets.local.cue
+OpenAIAPIKey: "your-openai-api-key"
+AssistantID: "your-openai-assistant-id"
+PdfMonkeyApiKey: "your-pdf-monkey-api-key"
+DownloadableTemplateId: "your-template-id"
+```
+
+### 4. Development
+
+#### Frontend (Chrome Extension)
+
+Build the extension in development mode:
+
+```bash
+pnpm dev
+```
+
+This creates a `dist` folder with the extension files. To load it in Chrome:
+
+1. Open Chrome and go to `chrome://extensions/`
+2. Enable "Developer mode"
+3. Click "Load unpacked" and select the `dist` folder
+4. The OptiPilot extension should now appear in your extensions
+
+#### Backend (API Server)
+
+Navigate to the backend directory and start the server:
+
+```bash
+cd backend
+encore run
+```
+
+The API will be available at `http://localhost:4000`
+
+#### Frontend (Web Preview)
+
+For development without extension APIs:
+
+```bash
+pnpm serve
+```
+
+This starts a web version at `http://localhost:5173`
 
 ### Available Scripts
 
-- **`pnpm dev`**: Builds the project in a development watch mode, usable for working in an extension mode.
+### Frontend
+- **`pnpm dev`**: Build extension in watch mode for development
+- **`pnpm serve`**: Run as web application (limited functionality)
+- **`pnpm build`**: Build for production
+- **`pnpm components`**: Start Storybook component library
 
-  ```bash
-  pnpm dev
-  ```
+### Backend
+- **`encore run`**: Start the development server
+- **`encore test`**: Run tests
+- **`encore build docker`**: Build Docker image for deployment
 
-- **`pnpm serve`**: Serves the project as a frontend application, has a limitation of extension API-s not being available.
+## Component Development
 
-  ```bash
-  pnpm serve
-  ```
+OptiPilot uses Storybook for component development:
 
-- **`pnpm components`**: Starts the Storybook server for developing components.
+```bash
+pnpm components
+```
 
-  ```bash
-  pnpm components
-  ```
+Visit `http://localhost:4321` to view and develop components in isolation.
 
-### Manifest
+## Development Features
 
-The project includes a **Chrome extension manifest (v3)** configuration defined in `public/manifest.json`. Please note that any change made to is requires restarting `pnpm dev`.
+- **Vue 3** with Composition API
+- **TypeScript** for type safety
+- **Storybook** for component development
+- **ESLint** for code quality
+- **Auto-imports** for Vue composables and components
+- **Hot reload** for fast development
 
 ### Recommended VSCode Extensions
 
-This project includes a set of recommended VSCode extensions, which are defined in `.vscode/extensions.json`. These extensions ensure a smooth development experience and help maintain consistency.
+OptiPilot requires the following permissions:
+- `activeTab`: To analyze the current tab
+- `<all_urls>`: To work on any website
+- `scripting`: To inject analysis scripts
+- `tabs`: To manage tab information
 
 To install the recommended extensions:
 
-1. Open the project in VSCode.
-2. You should see a prompt in the bottom right suggesting installing the recommended extensions. Click **Install All**.
+The backend provides the following main endpoints:
 
-Alternatively, you can manually install these extensions from the VSCode Extensions Marketplace. You can find them by copying their ids (`.vscode/extensions.json`) one by one into the extension searchbar.
+- `POST /prompt.analyze` - Analyze business information from a URL
+- `POST /prompt.generateHypotheses` - Generate A/B test hypotheses
+- `POST /prompt.generateTitle` - Generate experiment titles
+- `POST /proposal.generate` - Generate PDF reports
+- `GET /proposal.status` - Check report generation status
 
 ### VSCode Settings
 
-The project includes VSCode-specific settings in `.vscode/settings.json`, which configures the editor to enforce formatting and code quality. Please maintain it and add keep ading relevant settings to it over time to improve DX.
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
 ### Linting and Formatting
 
-This project uses **ESLint** with several plugins to ensure code quality. Please disable prettier for this project if you use it because it's gonna try to take over responsibilities that ESLint has in this repository.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests and linting
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
 
 ### EditorConfig
 
@@ -94,7 +188,3 @@ The `.editorconfig` file defines consistent code styles across different editors
 - LF for line endings.
 - UTF-8 encoding.
 - Trimming trailing whitespace.
-
-### License
-
-This project is private and its source code is not intended for public distribution.

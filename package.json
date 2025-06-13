@@ -1,7 +1,7 @@
 {
   "name": "optipilot",
-  "private": true,
   "version": "1.0.0",
+  "license": "MPL-2.0",
   "type": "module",
   "scripts": {
     "toolchain": "proto use",

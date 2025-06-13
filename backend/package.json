@@ -1,8 +1,7 @@
 {
-  "name": "encore-ts-starter",
-  "private": true,
+  "name": "optipilot-backend",
   "version": "0.0.1",
-  "description": "Encore Typescript Starter",
+  "description": "OptiPilot Backend API",
   "license": "MPL-2.0",
   "type": "module",
   "scripts": {
