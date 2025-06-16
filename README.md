@@ -32,6 +32,10 @@ All development should contribute to the following roadmap:
 
 https://docs.google.com/document/d/1GGhOlep1j7E2mD0awV2E8USHGhIM8HXCdAK5OepNU0M/edit?tab=t.0
 
+## Feature requests
+
+Feature requests are welcome and encouraged. All submitted feature requests will need to be approved by a member of the TopFlight team. When a feature request is approved, it will be listed in the roadmap. Please use the following form to submit a feature: https://docs.google.com/forms/d/e/1FAIpQLSc_sSoheoT5-mjcjvWEXaWqsbPOU8aQZOs1PGOG-hy3alur4w/viewform
+
 ## Architecture
 
 OptiPilot consists of two main components:
