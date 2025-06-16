@@ -26,6 +26,12 @@ To get started, first navigate to the web page you want to analyse. Then open th
 - 📊 **Export Capabilities**: Generate professional PDF reports of your optimization ideas
 - 🌐 **Browser Extension**: Works seamlessly as you browse, no separate app needed
 
+## Roadmap
+
+All development should contribute to the following roadmap:
+
+https://docs.google.com/document/d/1GGhOlep1j7E2mD0awV2E8USHGhIM8HXCdAK5OepNU0M/edit?tab=t.0
+
 ## Architecture
 
 OptiPilot consists of two main components:
