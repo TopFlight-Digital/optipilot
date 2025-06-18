@@ -13,7 +13,7 @@ import { StreamInOut } from "encore.dev/api";
 export type Hypothesis = {
     title: string;
     description: string;
-}
+};
 
 type RecordProgress = (message?: string) => void;
 type OnSetThreadId = (threadId?: string) => void;
@@ -26,7 +26,13 @@ export class HypothesesPrompt extends Prompt {
 
     private onError: OnEror;
 
-    constructor(recordProgress: RecordProgress, onSetThreadId: OnSetThreadId, onError: OnEror, assistantID: string, openAIAPIKey: string) {
+    constructor(
+        recordProgress: RecordProgress,
+        onSetThreadId: OnSetThreadId,
+        onError: OnEror,
+        assistantID: string,
+        openAIAPIKey: string,
+    ) {
         super();
         this.recordProgress = recordProgress;
         this.onSetThreadId = onSetThreadId;
@@ -52,6 +58,8 @@ export class HypothesesPrompt extends Prompt {
     private data: File[] = [];
 
     private _threadId?: string;
+
+    private likedIdeas: Hypothesis[] = [];
 
     get threadId() {
         return this._threadId;
@@ -99,24 +107,31 @@ export class HypothesesPrompt extends Prompt {
         return this;
     }
 
+    public withLikedIdeas(liked: Hypothesis[]) {
+        this.likedIdeas = liked;
+        return this;
+    }
+
     private async messages(): Promise<ThreadCreateParams.Message[]> {
-        const fileIds = await Promise.all(this.screenshots.map(async screenshot => {
-            const file = await dataUrlToFileInstance(screenshot);
-            this.recordProgress();
+        const fileIds = await Promise.all(
+            this.screenshots.map(async (screenshot) => {
+                const file = await dataUrlToFileInstance(screenshot);
+                this.recordProgress();
 
-            const response = await this.client.files.create({
-                file,
-                purpose: `vision`,
-            });
+                const response = await this.client.files.create({
+                    file,
+                    purpose: `vision`,
+                });
 
-            this.recordProgress();
-            return response.id;
-        }));
+                this.recordProgress();
+                return response.id;
+            }),
+        );
 
         this.recordProgress();
 
         const fileBatches: ImageFileContentBlock[][] = cluster(
-            fileIds.map(id => ({
+            fileIds.map((id) => ({
                 type: `image_file` as const,
                 image_file: {
                     file_id: id,
@@ -139,29 +154,29 @@ export class HypothesesPrompt extends Prompt {
 
         const screenshotMessages = [
             user`Here are screenshots of "the Page" in my product. Please list out all the section headings exactly as you see them, without modifying them. Per section please list all the features you see describe their ${keyPageAspects.join(`, `)}. Don't hesitate to express your opinion describing ideas, like the hitherto version of a section sucks:`,
-            ...fileBatches.map(content => ({
+            ...fileBatches.map((content) => ({
                 role: `user` as const,
                 content,
             })),
         ];
 
-        return [
-            ...screenshotMessages,
-        ];
+        return [...screenshotMessages];
     }
 
     private async dataMessages(): Promise<ThreadCreateParams.Message[]> {
-        const fileIds = await Promise.all(this.data.map(async file => {
-            this.recordProgress();
+        const fileIds = await Promise.all(
+            this.data.map(async (file) => {
+                this.recordProgress();
 
-            const response = await this.client.files.create({
-                file,
-                purpose: isImage(file) ? `vision` : `assistants`,
-            });
+                const response = await this.client.files.create({
+                    file,
+                    purpose: isImage(file) ? `vision` : `assistants`,
+                });
 
-            this.recordProgress();
-            return { id: response.id, isImage: isImage(file) };
-        }));
+                this.recordProgress();
+                return { id: response.id, isImage: isImage(file) };
+            }),
+        );
 
         this.recordProgress();
 
@@ -169,18 +184,18 @@ export class HypothesesPrompt extends Prompt {
             .filter(({ isImage }) => !isImage)
             .map(({ id }) => ({
                 file_id: id,
-                tools: [
-                    { type: `file_search` as const },
-                ],
+                tools: [{ type: `file_search` as const }],
             }));
 
         const fileBatches: ImageFileContentBlock[][] = cluster(
-            fileIds.filter(({ isImage }) => isImage).map(({ id }) => ({
-                type: `image_file` as const,
-                image_file: {
-                    file_id: id,
-                },
-            })),
+            fileIds
+                .filter(({ isImage }) => isImage)
+                .map(({ id }) => ({
+                    type: `image_file` as const,
+                    image_file: {
+                        file_id: id,
+                    },
+                })),
             10,
         );
 
@@ -190,7 +205,7 @@ export class HypothesesPrompt extends Prompt {
                 content: `Determine what kind of content is presented in each of these materials, and what key insights about user behaviour can be derived from them.`,
                 attachments,
             },
-            ...fileBatches.map(content => ({
+            ...fileBatches.map((content) => ({
                 role: `user` as const,
                 content,
             })),
@@ -203,17 +218,26 @@ export class HypothesesPrompt extends Prompt {
         }
         this.recordProgress();
 
+        let likedIdeasMessage = "";
+        if (this.likedIdeas && this.likedIdeas.length > 0) {
+            likedIdeasMessage =
+                `Here are some ideas the user liked previously:\n` +
+                this.likedIdeas
+                    .map(
+                        (idea, i) =>
+                            `${i + 1}. ${idea.title}: ${idea.description}`,
+                    )
+                    .join("\n") +
+                "\nPlease generate new ideas inspired by these.";
+        }
+
         const response = await this.client.beta.threads.runs.create(
             this.threadId,
             {
                 model: this.model,
                 assistant_id: this.assistantID,
                 additional_messages: [
-                    user`Now please return new hypotheses based on feedback provided below. Change only the ones that my feedback pertains to. Leave others intact but still return them in the same order as before.
-
-                        Feedback:
-                        ${message}
-                        OPTIPILOT!`,
+                    user`Now please return new hypotheses based on feedback provided below. Change only the ones that my feedback pertains to. Leave others intact but still return them in the same order as before.\n\nFeedback:\n${message}\n${likedIdeasMessage}\nOPTIPILOT!`,
                 ],
                 stream: true,
             },
@@ -286,23 +310,36 @@ export class HypothesesPrompt extends Prompt {
 
             this.recordProgress();
 
-            const goalMessages = this.goal ? [
-                user`The goal of my product: ${this.goal}`,
-            ] as const : [];
+            const goalMessages = this.goal
+                ? ([user`The goal of my product: ${this.goal}`] as const)
+                : [];
 
-            const overviewMessages = this.overview ? [
-                user`Overview of my product: ${this.overview}`,
-            ] as const : [];
+            const overviewMessages = this.overview
+                ? ([user`Overview of my product: ${this.overview}`] as const)
+                : [];
 
-            const detailsMessages = this.details ? [
-                user`Details of this page: ${this.details}`,
-            ] as const : [];
+            const detailsMessages = this.details
+                ? ([user`Details of this page: ${this.details}`] as const)
+                : [];
 
             const initialMessages = [
                 ...goalMessages,
                 ...overviewMessages,
                 ...detailsMessages,
             ];
+
+            let likedIdeasMessage = "";
+            if (this.likedIdeas && this.likedIdeas.length > 0) {
+                likedIdeasMessage =
+                    `Here are some ideas the user liked previously:\n` +
+                    this.likedIdeas
+                        .map(
+                            (idea, i) =>
+                                `${i + 1}. ${idea.title}: ${idea.description}`,
+                        )
+                        .join("\n") +
+                    "\nPlease generate new ideas inspired by these.";
+            }
 
             this.recordProgress(`Crafting smarter suggestions for you`);
 
@@ -313,14 +350,7 @@ export class HypothesesPrompt extends Prompt {
                     assistant_id: this.assistantID,
                     additional_messages: [
                         ...initialMessages,
-                        user`Come up with up to ${this.cap} ideas for how to improve site to achieve the provided goal, based on the information and screenshots provided. In their descriptions try to:
-    - refer to specific place on "the Page" like 'above' or 'bottom' etc — if applicable for given idea
-    - if you're referring to a specific section on the Page, use the section's heading
-    - highlight if a section is a site's header or footer
-    - describe why the new experience would be better than the current one by comparing
-
-    Please work as if it's a matter of life and death and we have limited time to fulfill the goal. We need ideas that will have maximum impact with balanced effort.
-    OPTIPILOT!`,
+                        user`Come up with up to ${this.cap} ideas for how to improve site to achieve the provided goal, based on the information and screenshots provided. In their descriptions try to:\n- refer to specific place on "the Page" like 'above' or 'bottom' etc — if applicable for given idea\n- if you're referring to a specific section on the Page, use the section's heading\n- highlight if a section is a site's header or footer\n- describe why the new experience would be better than the current one by comparing\n\n${likedIdeasMessage}\nPlease work as if it's a matter of life and death and we have limited time to fulfill the goal. We need ideas that will have maximum impact with balanced effort.\nOPTIPILOT!`,
                     ],
                     stream: true,
                 },
@@ -338,7 +368,9 @@ export class HypothesesPrompt extends Prompt {
                 }
             }
 
-            console.log(`Original hypotheses: ${JSON.stringify(hypotheses, null, 2)}`);
+            console.log(
+                `Original hypotheses: ${JSON.stringify(hypotheses, null, 2)}`,
+            );
 
             this.recordProgress();
 
@@ -392,29 +424,33 @@ interface HypothesesRequest {
     details: string;
     screenshots?: string[];
     data?: string[];
+    likedIdeas?: Hypothesis[];
 }
 
 interface HypothesesResponse {
     hypotheses?: Hypothesis[];
     message?: string;
     threadId?: string;
-    error?: string
+    error?: string;
 }
 
 const openaiApiKey = secret("OpenAIAPIKey");
 const assistantId = secret("AssistantID");
 
-export const generateHypotheses = api.streamInOut<HypothesesRequest, HypothesesResponse>(
+export const generateHypotheses = api.streamInOut<
+    HypothesesRequest,
+    HypothesesResponse
+>(
     { expose: true },
-    async(stream: StreamInOut<HypothesesRequest, HypothesesResponse>) => {
+    async (stream: StreamInOut<HypothesesRequest, HypothesesResponse>) => {
         const prompt = new HypothesesPrompt(
-            message => {
+            (message) => {
                 stream.send({ message: message ?? `` });
             },
-            value => {
+            (value) => {
                 stream.send({ threadId: value });
             },
-            error => {
+            (error) => {
                 stream.send({ error: error ?? `` });
                 stream.close();
             },
@@ -424,7 +460,13 @@ export const generateHypotheses = api.streamInOut<HypothesesRequest, HypothesesR
 
         for await (const request of stream) {
             const handshake = request as HypothesesRequest;
-            const files = handshake.data ? await Promise.all(handshake.data.map(dataUrl => dataUrlToFileInstance(dataUrl))) : [];
+            const files = handshake.data
+                ? await Promise.all(
+                      handshake.data.map((dataUrl) =>
+                          dataUrlToFileInstance(dataUrl),
+                      ),
+                  )
+                : [];
 
             prompt
                 .withGoal(handshake.goal)
@@ -432,6 +474,9 @@ export const generateHypotheses = api.streamInOut<HypothesesRequest, HypothesesR
                 .withDetails(handshake.details)
                 .withScreenshots(request.screenshots ?? [])
                 .withData(files);
+            if (handshake.likedIdeas) {
+                prompt.withLikedIdeas(handshake.likedIdeas);
+            }
             break;
         }
 
@@ -445,6 +490,7 @@ export const generateHypotheses = api.streamInOut<HypothesesRequest, HypothesesR
 interface HypothesesFeedbackRequest {
     threadId: string;
     message: string;
+    likedIdeas?: Hypothesis[];
 }
 
 interface HypothesesFeedbackResponse {
@@ -453,27 +499,30 @@ interface HypothesesFeedbackResponse {
     error?: string;
 }
 
-export const sendFeedback = api.streamOut<HypothesesFeedbackRequest, HypothesesFeedbackResponse>(
-    { expose: true },
-    async(parameters: HypothesesFeedbackRequest, stream) => {
-        const prompt = new HypothesesPrompt(
-            message => {
-                stream.send({ message: message ?? `` });
-            },
-            () => {},
-            error => {
-                stream.send({ error: error ?? `` });
-                stream.close();
-            },
-            assistantId(),
-            openaiApiKey(),
-        );
+export const sendFeedback = api.streamOut<
+    HypothesesFeedbackRequest,
+    HypothesesFeedbackResponse
+>({ expose: true }, async (parameters: HypothesesFeedbackRequest, stream) => {
+    const prompt = new HypothesesPrompt(
+        (message) => {
+            stream.send({ message: message ?? `` });
+        },
+        () => {},
+        (error) => {
+            stream.send({ error: error ?? `` });
+            stream.close();
+        },
+        assistantId(),
+        openaiApiKey(),
+    );
 
-        prompt.threadId = parameters.threadId;
+    prompt.threadId = parameters.threadId;
+    if (parameters.likedIdeas) {
+        prompt.withLikedIdeas(parameters.likedIdeas);
+    }
 
-        const hypotheses = await prompt.sendFeedback(parameters.message);
+    const hypotheses = await prompt.sendFeedback(parameters.message);
 
-        await stream.send({ hypotheses });
-        await stream.close();
-    },
-);
+    await stream.send({ hypotheses });
+    await stream.close();
+});

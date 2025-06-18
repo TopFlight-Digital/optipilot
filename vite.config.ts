@@ -8,7 +8,7 @@ import Unfonts from 'unplugin-fonts/vite';
 
 export default defineConfig({
     define: {
-        API_SERVER_URL: JSON.stringify(``),
+        API_SERVER_URL: JSON.stringify(`http://localhost:4000`),
     },
     plugins: [
         vue(),
