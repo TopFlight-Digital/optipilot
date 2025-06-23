@@ -444,23 +444,33 @@ function resizeCurrentTab(width: number, height: number) {
 }
 
 function mergeLikedHypotheses(results: Hypothesis[]): Hypothesis[] {
-    // Find liked hypotheses not in results
-    const missingLiked = (
-        JSON.parse(localStorage.getItem(`liked.hypotheses`) || `[]`) as [
-            string,
-            boolean,
-        ][]
-    )
-        .filter(
-            ([title, liked]) =>
-                liked && !results.some((h: Hypothesis) => h.title === title),
-        )
-        .map(([title]) => {
-            // Try to find the last known version in previous hypotheses
-            const previous = (bloc.hypotheses || []).find(
-                (h: Hypothesis) => h.title === title,
-            );
-            return previous || { title, description: `(Previously liked idea)` };
-        });
+    const likedHypothesesData = JSON.parse(
+        localStorage.getItem(`liked.hypotheses`) || `[]`,
+    ) as [string, boolean][];
+
+    const missingLiked: Hypothesis[] = [];
+
+    for (const [title, isLiked] of likedHypothesesData) {
+        if (!isLiked) continue;
+
+        const isInResults = results.some(
+            (hypothesis: Hypothesis) => hypothesis.title === title,
+        );
+        if (isInResults) continue;
+
+        const previous = (bloc.hypotheses || []).find(
+            (hypothesis: Hypothesis) => hypothesis.title === title,
+        );
+
+        if (previous) {
+            missingLiked.push(previous);
+        } else {
+            missingLiked.push({
+                title,
+                description: `(Previously liked idea)`,
+            });
+        }
+    }
+
     return [...results, ...missingLiked];
 }
