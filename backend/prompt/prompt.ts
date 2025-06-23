@@ -3,7 +3,7 @@ import type { ImageURLContentBlock } from "openai/resources/beta/threads/message
 export abstract class Prompt {
     public toJpeg(url: string): ImageURLContentBlock {
         return {
-            "type": `image_url`,
+            "type": "image_url",
             "image_url": {
                 url,
             },

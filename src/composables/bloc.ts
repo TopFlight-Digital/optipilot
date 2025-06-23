@@ -6,6 +6,7 @@ import { BREAKPOINTS, DEVICE_TYPE_OPTIONS, DeviceType } from "@/constants";
 import { Body, Meta, UppyFile } from "@uppy/core";
 import useVuelidate from "@vuelidate/core";
 import { required } from "@vuelidate/validators";
+import { useStorage } from "@vueuse/core";
 
 function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
     const { domain } = useTab(tab);
@@ -15,66 +16,46 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
     }
 
     const product = {
-        overview: useStorage(
-            key`product.overview`,
-            ``,
-        ),
-        details: useStorage(
-            key`product.details`,
-            ``,
-        ),
-        data: useStorage(
-            key`product.data`,
-            [],
-        ),
+        overview: useStorage(key`product.overview`, ``),
+        details: useStorage(key`product.details`, ``),
+        data: useStorage(key`product.data`, []),
     };
 
     const scan = {
-        objective: useStorage(
-            key`scan.objective`,
-            ``,
-        ),
-        overview: useStorage(
-            key`scan.overview`,
-            ``,
-        ),
-        data: useStorageAsync(
-            key`scan.data`,
-            [],
-            undefined,
-            {
-                serializer: {
-                    async read(value: string) {
-                        const deserialized: UppyFile<Meta, Body> & { data: string }[] = JSON.parse(value);
+        objective: useStorage(key`scan.objective`, ``),
+        overview: useStorage(key`scan.overview`, ``),
+        data: useStorageAsync(key`scan.data`, [], undefined, {
+            serializer: {
+                async read(value: string) {
+                    const deserialized: UppyFile<Meta, Body> &
+                        { data: string }[] = JSON.parse(value);
 
-                        const files = await Promise.all(
-                            deserialized.map(item => dataUrlToFileInstance(item.data)),
-                        );
+                    const files = await Promise.all(
+                        deserialized.map(item =>
+                            dataUrlToFileInstance(item.data),
+                        ),
+                    );
 
-                        return deserialized.map((item, index) => ({
+                    return deserialized.map((item, index) => ({
+                        ...item,
+                        data: files[index],
+                    }));
+                },
+                async write(data: UppyFile<Meta, Body>[]) {
+                    const files = await Promise.all(
+                        data.map(item => fileToDataUrl(item.data as File)),
+                    );
+
+                    return JSON.stringify(
+                        data.map((item, index) => ({
                             ...item,
                             data: files[index],
-                        }));
-                    },
-                    async write(data: UppyFile<Meta, Body>[]) {
-                        const files = await Promise.all(
-                            data.map(item => fileToDataUrl(item.data as File)),
-                        );
-
-                        return JSON.stringify(
-                            data.map((item, index) => ({
-                                ...item,
-                                data: files[index],
-                            })),
-                        );
-                    },
+                        })),
+                    );
                 },
             },
-        ),
-        deviceType: useStorage<DeviceType>(
-            key`scan.deviceType`,
-            `desktop`,
-        ),
+        }),
+        deviceType: useStorage<DeviceType>(key`scan.deviceType`, `desktop`),
     };
 
     const feedback = {
@@ -86,45 +67,58 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
     return {
         product: {
             ...product,
-            $validation: useVuelidate({
-                overview: { required },
-                details: {},
-                data: {},
-            }, product),
+            $validation: useVuelidate(
+                {
+                    overview: { required },
+                    details: {},
+                    data: {},
+                },
+                product,
+            ),
         },
 
         scan: {
             ...scan,
-            $validation: useVuelidate({
-                objective: { required },
-                data: {},
-                deviceType: {
-                    required,
-                    oneOf(value: string) {
-                        // @ts-expect-error — `includes` typing too strict.
-                        return DEVICE_TYPE_OPTIONS.map(({ slug }) => slug).includes(value);
+            $validation: useVuelidate(
+                {
+                    objective: { required },
+                    data: {},
+                    deviceType: {
+                        required,
+                        oneOf(value: string) {
+                            // @ts-expect-error — `includes` typing too strict.
+                            return DEVICE_TYPE_OPTIONS.map(
+                                ({ slug }) => slug,
+                            ).includes(value);
+                        },
                     },
                 },
-            }, scan),
+                scan,
+            ),
         },
 
         feedback: {
             ...feedback,
-            $validation: useVuelidate({
-                message: { required },
-            }, feedback),
+            $validation: useVuelidate(
+                {
+                    message: { required },
+                },
+                feedback,
+            ),
         },
 
         progress: {
             step: 1,
             message: ref(``),
             numerator: ref(0),
-            denominator: computed(() => Math.min(250, screenshotsToTake.value * 75)),
+            denominator: computed(() =>
+                Math.min(250, screenshotsToTake.value * 75),
+            ),
 
             tick(message?: string) {
                 const { numerator, denominator } = bloc.progress;
                 if (numerator >= denominator - 2) {
-                    bloc.progress.step *= .6;
+                    bloc.progress.step *= 0.6;
                     bloc.progress.numerator += bloc.progress.step;
                 } else {
                     bloc.progress.numerator = Math.min(
@@ -151,14 +145,19 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
 
         takeScreenshots(currentTab: chrome.tabs.Tab) {
             type State = {
-                top: number, step: number, pageHeight: number
-            }
+                top: number;
+                step: number;
+                pageHeight: number;
+            };
 
             return new Promise<void>(resolve => {
                 function takeScreenshot(first = false) {
                     if (first) bloc.screenshots = [];
 
-                    chrome.scripting.executeScript<[first: boolean], Promise<State>>(
+                    chrome.scripting.executeScript<
+                        [first: boolean],
+                        Promise<State>
+                    >(
                         {
                             target: { tabId: currentTab.id! },
                             func: async first => {
@@ -167,17 +166,26 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
                                     : window.scrollY + window.innerHeight;
 
                                 window.scrollTo(0, top);
-                                await new Promise(resolve => setTimeout(resolve, 500));
+                                await new Promise(resolve =>
+                                    setTimeout(resolve, 500),
+                                );
 
-                                return { top, step: window.innerHeight, pageHeight: document.body.scrollHeight };
+                                return {
+                                    top,
+                                    step: window.innerHeight,
+                                    pageHeight: document.body.scrollHeight,
+                                };
                             },
                             args: [first],
                         },
                         async injectionResults => {
-                            const { top, step, pageHeight } = injectionResults[0].result as State;
+                            const { top, step, pageHeight } =
+                                injectionResults[0].result as State;
 
                             if (first) {
-                                screenshotsToTake.value = Math.ceil(pageHeight / step);
+                                screenshotsToTake.value = Math.ceil(
+                                    pageHeight / step,
+                                );
                             }
 
                             if (chrome.runtime.lastError) {
@@ -185,7 +193,8 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
                                 return;
                             }
 
-                            const screenshot = await chrome.tabs.captureVisibleTab();
+                            const screenshot =
+                                await chrome.tabs.captureVisibleTab();
 
                             bloc.screenshots.push(screenshot);
                             bloc.progress.tick();
@@ -212,17 +221,11 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
 
         businessInfoPrompt: new BusinessInfoPrompt(domain.value ?? ``),
 
-        threadId: useStorage(
-            key`threadId`,
-            ``,
-        ),
+        threadId: useStorage(key`threadId`, ``),
 
         scanId: ref<string>(``),
 
-        scanIds: useStorage(
-            `_scans`,
-            [],
-        ),
+        scanIds: useStorage(`_scans`, []),
 
         pending: ref(false),
 
@@ -234,6 +237,19 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
             bloc.backendErrorOccured = false;
             bloc.pending = false;
         },
+
+        // Persistent Map for liked hypotheses (by title)
+        likedHypotheses: useStorage<Map<string, boolean>>(
+            `liked.hypotheses`,
+            new Map(),
+            localStorage,
+            {
+                serializer: {
+                    read: v => new Map(JSON.parse(v || `[]`)),
+                    write: v => JSON.stringify([...v.entries()]),
+                },
+            },
+        ),
 
         async submit() {
             bloc.pending = true;
@@ -250,12 +266,24 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
 
             bloc.progress.tick();
 
+            // Gather liked hypotheses
+            const likedMap =
+                bloc.likedHypotheses.value instanceof Map
+                    ? bloc.likedHypotheses.value
+                    : new Map();
+            const likedHypothesesList = (bloc.hypotheses || []).filter(
+                (h: Hypothesis) => likedMap.get(h.title),
+            );
+
             bloc.prompt
                 .withScreenshots(bloc.screenshots)
-                .withData(bloc.scan.data.map(({ data }: { data: File[] }) => data))
+                .withData(
+                    bloc.scan.data.map(({ data }: { data: File[] }) => data),
+                )
                 .withGoal(bloc.scan.objective)
                 .withOverview(bloc.product.overview)
-                .withDetails(bloc.product.details);
+                .withDetails(bloc.product.details)
+                .withLikedIdeas(likedHypothesesList);
 
             bloc.progress.tick();
 
@@ -270,22 +298,20 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
             const scanId = crypto.randomUUID();
             bloc.scanIds = [...bloc.scanIds, scanId];
 
-            const scan = useScanById(
-                scanId,
-                {
-                    id: scanId,
-                    threadId: bloc.threadId,
-                    title: ``,
-                    date: new Date(),
-                    icon: toValue(tab).favIconUrl,
-                    hypotheses: results,
-                },
-            );
+            const scan = useScanById(scanId, {
+                id: scanId,
+                threadId: bloc.threadId,
+                title: ``,
+                date: new Date(),
+                icon: toValue(tab).favIconUrl,
+                hypotheses: results,
+            });
 
             bloc.scanId = scanId;
 
             setTimeout(() => {
-                bloc.hypotheses = results;
+                // Merge in liked hypotheses not in results
+                bloc.hypotheses = mergeLikedHypotheses(results);
                 bloc.pending = false;
             }, 300);
 
@@ -299,6 +325,17 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
 
             bloc.pending = true;
             bloc.progress.reset(`Gathering feedback`);
+
+            // Gather liked hypotheses
+            const likedMap =
+                bloc.likedHypotheses.value instanceof Map
+                    ? bloc.likedHypotheses.value
+                    : new Map();
+            const likedHypothesesList = (bloc.hypotheses || []).filter(
+                (h: Hypothesis) => likedMap.get(h.title),
+            );
+
+            bloc.prompt.withLikedIdeas(likedHypothesesList);
 
             const results = await bloc.prompt.request(
                 bloc.feedback.message,
@@ -316,30 +353,23 @@ function fields(tab: MaybeRefOrGetter<chrome.tabs.Tab>) {
                 bloc.scanId = scanId;
             }
 
-            bloc.hypotheses = results;
+            bloc.hypotheses = mergeLikedHypotheses(results);
             bloc.pending = false;
         },
 
-        hypotheses: useStorage<Hypothesis[]>(
-            key`hypotheses`,
-            [],
-        ),
+        hypotheses: useStorage<Hypothesis[]>(key`hypotheses`, []),
 
         hostFavicon: computed(() => toValue(tab).favIconUrl),
-        tab: useStorage(
-            key`tab`,
-            `website`,
-        ),
+        tab: useStorage(key`tab`, `website`),
     };
 }
 
 // @ts-ignore
-const bloc = reactive(Object.assign(
-    {} as ReturnType<typeof fields>,
-    {
+const bloc = reactive(
+    Object.assign({} as ReturnType<typeof fields>, {
         ready: ref(false),
-    },
-));
+    }),
+);
 
 export function defineBloc() {
     provide(`bloc`, bloc);
@@ -353,12 +383,16 @@ function isValidUrl(url?: string): boolean {
         const parsedUrl = new URL(url);
 
         const invalidProtocols = [`chrome:`, `about:`, `file:`];
-        if (invalidProtocols.some(protocol => parsedUrl.protocol.startsWith(protocol))) {
+        if (
+            invalidProtocols.some(protocol =>
+                parsedUrl.protocol.startsWith(protocol),
+            )
+        ) {
             return false;
         }
 
         const invalidHosts = [`newtab`, `settings`, `extensions`];
-        return !(invalidHosts.some(host => parsedUrl.hostname.includes(host)));
+        return !invalidHosts.some(host => parsedUrl.hostname.includes(host));
     } catch {
         return false;
     }
@@ -389,10 +423,8 @@ export function useBloc() {
     return inject(`bloc`) as Bloc;
 }
 
-
 function resizeCurrentTab(width: number, height: number) {
     return new Promise<void>(resolve => {
-
         chrome.windows.getCurrent(async function(window) {
             const updateInfo: chrome.windows.UpdateInfo = {
                 width,
@@ -409,4 +441,36 @@ function resizeCurrentTab(width: number, height: number) {
             resolve();
         });
     });
+}
+
+function mergeLikedHypotheses(results: Hypothesis[]): Hypothesis[] {
+    const likedHypothesesData = JSON.parse(
+        localStorage.getItem(`liked.hypotheses`) || `[]`,
+    ) as [string, boolean][];
+
+    const missingLiked: Hypothesis[] = [];
+
+    for (const [title, isLiked] of likedHypothesesData) {
+        if (!isLiked) continue;
+
+        const isInResults = results.some(
+            (hypothesis: Hypothesis) => hypothesis.title === title,
+        );
+        if (isInResults) continue;
+
+        const previous = (bloc.hypotheses || []).find(
+            (hypothesis: Hypothesis) => hypothesis.title === title,
+        );
+
+        if (previous) {
+            missingLiked.push(previous);
+        } else {
+            missingLiked.push({
+                title,
+                description: `(Previously liked idea)`,
+            });
+        }
+    }
+
+    return [...results, ...missingLiked];
 }

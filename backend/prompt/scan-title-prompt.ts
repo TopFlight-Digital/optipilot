@@ -38,11 +38,11 @@ export class ScanTitlePrompt extends Prompt {
             },
         );
 
-        let title = ``;
+        let title = "";
 
         for await (const message of response) {
-            console.log(`message4`, message);
-            if (message.event === `thread.message.completed`) {
+            console.log("message4", message);
+            if (message.event === "thread.message.completed") {
                 console.log(message.data.content[0].text.value);
                 title = JSON.parse(message.data.content[0].text.value);
             }

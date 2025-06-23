@@ -19,18 +19,18 @@ export const generate = api(
         const body = {
             document: {
                 document_template_id: downloadableTemplateId(),
-                status: `pending`,
+                status: "pending",
                 payload,
             },
         };
 
-        const response = await fetch(`https://api.pdfmonkey.io/api/v1/documents`, {
+        const response = await fetch("https://api.pdfmonkey.io/api/v1/documents", {
             body: JSON.stringify(body),
             headers: {
                 Authorization: `Bearer ${pdfMonkeyApiKey()}`,
-                "Content-Type": `application/json`,
+                "Content-Type": "application/json",
             },
-            method: `POST`,
+            method: "POST",
         });
 
         const data = await response.json() as PdfMonkey.GenerateDocumentResponse;
