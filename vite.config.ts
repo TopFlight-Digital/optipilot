@@ -1,14 +1,16 @@
-import { defineConfig } from 'vite';
-import vue from '@vitejs/plugin-vue';
-import { fileURLToPath, URL } from 'node:url';
-import Components from 'unplugin-vue-components/vite';
-import AutoImport from 'unplugin-auto-import/vite';
-import createSvgSpritePlugin from 'vite-plugin-svg-sprite';
-import Unfonts from 'unplugin-fonts/vite';
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+import { fileURLToPath, URL } from "node:url";
+import Components from "unplugin-vue-components/vite";
+import AutoImport from "unplugin-auto-import/vite";
+import createSvgSpritePlugin from "vite-plugin-svg-sprite";
+import Unfonts from "unplugin-fonts/vite";
 
 export default defineConfig({
     define: {
-        API_SERVER_URL: JSON.stringify(`http://localhost:4000`),
+        API_SERVER_URL: JSON.stringify(
+            process.env.VITE_API_SERVER_URL || `http://localhost:4000`,
+        ),
     },
     plugins: [
         vue(),
@@ -17,13 +19,8 @@ export default defineConfig({
             collapseSamePrefixes: true,
         }),
         AutoImport({
-            imports: [
-                `vue`,
-                `@vueuse/core`,
-            ],
-            dirs: [
-                `src/composables/**`,
-            ],
+            imports: [`vue`, `@vueuse/core`],
+            dirs: [`src/composables/**`],
             vueTemplate: false,
         }),
         createSvgSpritePlugin({
@@ -43,7 +40,7 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-            '@': fileURLToPath(new URL(`src`, import.meta.url)),
+            "@": fileURLToPath(new URL(`src`, import.meta.url)),
         },
     },
 });

@@ -29,5 +29,3 @@ components.d.ts
 *storybook.log
 .env
 *.tsbuildinfo
-lint-rule.cjs
-like-feature-changes.patch
