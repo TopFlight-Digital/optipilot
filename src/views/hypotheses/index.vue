@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import useScansByIds from '@/composables/scan';
-import backwards from '@/icons/backwards.svg';
-import forward from '@/icons/forward.svg';
-import HypothesisView from '@/views/hypothesis.vue';
-import { type TabSlug, tabs } from '.';
+import useScansByIds from "@/composables/scan";
+import backwards from "@/icons/backwards.svg";
+import forward from "@/icons/forward.svg";
+import HypothesisView from "@/views/hypothesis.vue";
+import { type TabSlug, tabs } from ".";
+import { useStorage } from "@vueuse/core";
 
 const props = defineProps({
     tab: {
@@ -13,8 +14,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits<{
-    (event: `edit`, scanId?: string): void
-    (event: `update:tab`, value: TabSlug): void
+    (event: `edit`, scanId?: string): void;
+    (event: `update:tab`, value: TabSlug): void;
 }>();
 
 const tabModel = useModel(props, `tab`);
@@ -35,6 +36,33 @@ const scan = computed(() => {
     return scans.value[index];
 });
 
+// Persistent Map for liked hypotheses (by title)
+const likedHypotheses = useStorage<Map<string, boolean>>(
+    `liked.hypotheses`,
+    new Map(),
+    localStorage,
+    {
+        serializer: {
+            read: v => new Map(JSON.parse(v || `[]`)),
+            write: v => JSON.stringify([...v.entries()]),
+        },
+    },
+);
+
+function isLiked(title: string) {
+    return likedHypotheses.value.get(title) === true;
+}
+
+function toggleLike(title: string) {
+    const current = likedHypotheses.value.get(title) || false;
+    if (current) {
+        // If currently liked, remove from Map (unlike)
+        likedHypotheses.value.delete(title);
+    } else {
+        // If not liked, set to true (like)
+        likedHypotheses.value.set(title, true);
+    }
+}
 </script>
 
 <template>
@@ -56,9 +84,7 @@ const scan = computed(() => {
                 />
             </div>
 
-            <app-scroll-view
-                overrun="0.5rem"
-            >
+            <app-scroll-view overrun="0.5rem">
                 <div class="view__items">
                     <template v-if="tabModel === tabs[0].slug">
                         <bloc-hypothesis
@@ -67,6 +93,8 @@ const scan = computed(() => {
                             :index="index + 1"
                             :title="item.title"
                             :subtitle="item.description"
+                            :liked="isLiked(item.title)"
+                            @toggle-like="toggleLike(item.title)"
                             @click="hypothesisIndex = index"
                         />
                     </template>
@@ -80,6 +108,8 @@ const scan = computed(() => {
                                 :title="item.title"
                                 :subtitle="item.description"
                                 :icon="scan.value.icon"
+                                :liked="isLiked(item.title)"
+                                @toggle-like="toggleLike(item.title)"
                                 @click="hypothesisIndex = index"
                             />
                         </template>
@@ -109,7 +139,7 @@ const scan = computed(() => {
                     <app-button
                         v-if="scan !== undefined"
                         label="Back"
-                        :icon=backwards
+                        :icon="backwards"
                         variant="secondary"
                         wide
                         leader="icon"
@@ -118,10 +148,12 @@ const scan = computed(() => {
 
                     <app-button
                         label="Feedback"
-                        :icon=forward
+                        :icon="forward"
                         :variant="scan !== undefined ? `primary` : `secondary`"
                         wide
-                        @click="scan ? emit(`edit`, scan.value.id) : emit(`edit`)"
+                        @click="
+                            scan ? emit(`edit`, scan.value.id) : emit(`edit`)
+                        "
                     />
                 </div>
             </app-scroll-view>
@@ -164,7 +196,7 @@ const scan = computed(() => {
         padding-bottom: 1.75rem;
         display: flex;
         flex-direction: column;
-        gap: .75rem;
+        gap: 0.75rem;
         align-items: center;
 
         &--scan {

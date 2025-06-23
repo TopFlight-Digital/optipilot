@@ -34,13 +34,13 @@ const { scan } = useBloc();
                     />
 
 
-<!--                    <app-input-->
-<!--                        v-model="scan.data"-->
-<!--                        label="Upload webpage data"-->
-<!--                        hint="Upload qualitative and/or quantitative data that show how users interact with the specific web page. Upload as CSV, Excel, PDF, JPG, PNG or MP3."-->
-<!--                        type="file"-->
-<!--                        :required="scan.$validation.data.required"-->
-<!--                    />-->
+                    <!--                    <app-input -->
+                    <!--                        v-model="scan.data" -->
+                    <!--                        label="Upload webpage data" -->
+                    <!--                        hint="Upload qualitative and/or quantitative data that show how users interact with the specific web page. Upload as CSV, Excel, PDF, JPG, PNG or MP3." -->
+                    <!--                        type="file" -->
+                    <!--                        :required="scan.$validation.data.required" -->
+                    <!--                    /> -->
 
                     <app-choice
                         v-model="scan.deviceType"

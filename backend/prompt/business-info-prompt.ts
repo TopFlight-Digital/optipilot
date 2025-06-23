@@ -26,7 +26,7 @@ export class BusinessInfoPrompt extends Prompt {
         const completion = await this.client.chat.completions.create({
             model: this.model,
             messages: [{
-                role: `user`,
+                role: "user",
                 content: `Analyze whether you have information about the business at the following URL: ${this.tabTitle}.
                 If you have information about this business or brand, please provide details about its activities, products, services, and any other relevant information.
                 Return the information in a structured format, JSON, with only one key: message.
