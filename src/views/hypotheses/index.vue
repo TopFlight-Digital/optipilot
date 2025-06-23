@@ -50,16 +50,14 @@ const likedHypotheses = useStorage<Map<string, boolean>>(
 );
 
 function isLiked(title: string) {
-    return likedHypotheses.value.get(title) === true;
+    return likedHypotheses.value.get(title);
 }
 
 function toggleLike(title: string) {
     const current = likedHypotheses.value.get(title) || false;
     if (current) {
-        // If currently liked, remove from Map (unlike)
         likedHypotheses.value.delete(title);
     } else {
-        // If not liked, set to true (like)
         likedHypotheses.value.set(title, true);
     }
 }
