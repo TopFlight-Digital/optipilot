@@ -42,8 +42,8 @@ importers:
         specifier: ^3.1.10
         version: 3.1.10
       encore.dev:
-        specifier: ^1.46.18
-        version: 1.46.20
+        specifier: ^1.48.4
+        version: 1.48.6
       event-target-shim:
         specifier: ^6.0.2
         version: 6.0.2
@@ -580,8 +580,8 @@ packages:
     engines: {node: '>=0.10.0'}
     hasBin: true
 
-  encore.dev@1.46.20:
-    resolution: {integrity: sha512-3YsRWvBLiXUK6IyqYlISkweF/aB3PlPMlTPtZcuXWvs+p0Of8DzswB1GJtQYDyqGrdixEMM6jacnC0BpwXrgIA==}
+  encore.dev@1.48.6:
+    resolution: {integrity: sha512-wVE9c5J+Z6fJTO46Ze9wJCuiUNqUpI40MhMFg+pymyOIJT99WvFcyz2aSH3lVI+uz1hhvzPkWzEXEy+GomyGHw==}
     engines: {node: '>=18.0.0'}
 
   es-define-property@1.0.1:
@@ -1407,7 +1407,7 @@ snapshots:
     dependencies:
       jake: 10.9.2
 
-  encore.dev@1.46.20: {}
+  encore.dev@1.48.6: {}
 
   es-define-property@1.0.1: {}
 
