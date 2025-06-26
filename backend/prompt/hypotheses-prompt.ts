@@ -313,14 +313,44 @@ export class HypothesesPrompt extends Prompt {
                     assistant_id: this.assistantID,
                     additional_messages: [
                         ...initialMessages,
-                        user`Come up with up to ${this.cap} ideas for how to improve site to achieve the provided goal, based on the information and screenshots provided. In their descriptions try to:
-    - refer to specific place on "the Page" like 'above' or 'bottom' etc — if applicable for given idea
-    - if you're referring to a specific section on the Page, use the section's heading
-    - highlight if a section is a site's header or footer
-    - describe why the new experience would be better than the current one by comparing
+                        user`
+                            Come up with up to ${this.cap} thoughtful and creative A/B test hypotheses that are specific to the provided web page, goal, and business context.
 
-    Please work as if it's a matter of life and death and we have limited time to fulfill the goal. We need ideas that will have maximum impact with balanced effort.
-    OPTIPILOT!`,
+                            Your output should *not* include vague or generic suggestions like "make the CTA stand out" or "add urgency." Instead, each idea must:
+
+                            1. Be **tailored to the specific product or service offering** — consider what type of user would be visiting this page, what they're likely trying to achieve, and what barriers may prevent them from converting.
+                            2. Highlight **specific user pain-points or frictions** observed or implied in the UI, UX, or page content — e.g., trust concerns, choice paralysis, unclear value propositions, technical understanding gaps.
+                            3. Propose **creative and brand-relevant test ideas** that aim to solve these issues — ideas should feel insightful, as if crafted by a seasoned CRO strategist.
+                            4. Include a short, structured rationale using this format:
+
+                            ---
+                            **Test Idea X:**
+                            - **Rationale:** [Explain the user problem, the missed opportunity, or friction point.]
+                            - **Hypothesis:** [Describe the change and why it could improve conversions.]
+                            - **Success metric:** [What outcome are we trying to improve?]
+                            ---
+
+                            Where possible:
+                            - Reference the **specific section or visual element** of the page (e.g., "beneath the product title", "in the right-hand filter column").
+                            - Include **brand-level nuance** if context is provided. For example, if it's a high-trust B2B brand, test ideas should reflect those values (e.g., credibility building, ROI calculators, case study surfacing).
+                            - Feel free to suggest use of AI tools or progressive features, but only when it makes sense for this business and user need.
+
+                            Here are some examples of strong hypotheses (do not repeat them, just use them as inspiration for format and tone):
+
+                            **Example 1:**
+                            - **Rationale:** DIY shoppers may not understand which sheet material suits their use case.
+                            - **Hypothesis:** If we surface an AI-powered assistant that recommends materials based on intended use, we'll reduce choice paralysis and increase conversion.
+                            - **Success metric:** Product add-to-cart rate.
+
+                            **Example 2:**
+                            - **Rationale:** Trustpilot ratings are excellent but under-leveraged.
+                            - **Hypothesis:** Showing Trustpilot badges alongside high-cost items and at checkout will improve confidence and reduce drop-off.
+                            - **Success metric:** Checkout initiation rate.
+
+                            ---
+
+                            Make each idea count. Focus on impact, insight, and strategic creativity — like a top-tier CRO consultant would. OPTIPILOT!
+                            `,
                     ],
                     stream: true,
                 },
