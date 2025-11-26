@@ -215,23 +215,20 @@ export class HypothesesPrompt extends Prompt {
                         ${message}
                         OPTIPILOT!`,
                 ],
-                stream: true,
             },
         );
+        
+        await waitForRunCompletion(this.client, response.thread_id, response.id, {
+            onUpdate: () => this.recordProgress(),
+        });
 
         this.recordProgress();
-        let streams = 0;
 
-        for await (const message of response) {
-            // console.log(`message3`, message);
-            if (!(++streams % 25)) this.recordProgress();
-
-            if (message.event === `thread.message.completed`) {
-                return JSON.parse(message.data.content[0].text.value);
-            }
+        try {
+            return getLatestAssistantJSON(this.client, this.threadId);
+        } catch {
+            return [];
         }
-
-        return [];
     }
 
     // eslint-disable-next-line sonarjs/cognitive-complexity
@@ -241,26 +238,19 @@ export class HypothesesPrompt extends Prompt {
             const messages = await this.messages();
             this.recordProgress(`Analysing data for tailored improvements`);
 
-            const stream = await this.client.beta.threads.createAndRun({
+            const thread = await this.client.beta.threads.createAndRun({
                 assistant_id: this.assistantID,
                 thread: {
                     messages,
                 },
                 model: this.model,
-                stream: true,
             });
+            this.threadId = thread.thread_id;
 
             this.recordProgress();
-            let streams = 0;
-
-            for await (const message of stream) {
-                if (!(++streams % 17)) this.recordProgress();
-
-                if (message.event === `thread.created`) {
-                    this.threadId = message.data.id;
-                }
-                // console.log(`message1`, message);
-            }
+            await waitForRunCompletion(this.client, thread.thread_id, thread.id, {
+                onUpdate: () => this.recordProgress(),
+            });
 
             this.recordProgress();
             const dataMessages = await this.dataMessages();
@@ -272,17 +262,14 @@ export class HypothesesPrompt extends Prompt {
                     model: this.model,
                     assistant_id: this.assistantID,
                     additional_messages: dataMessages,
-                    stream: true,
                 },
             );
 
             this.recordProgress();
-            streams = 0;
 
-            for await (const message of dataResponse) {
-                if (!(++streams % 17)) this.recordProgress();
-                // console.log(`message5`, message);
-            }
+            await waitForRunCompletion(this.client, dataResponse.thread_id, dataResponse.id, {
+                onUpdate: () => this.recordProgress(),
+            });
 
             this.recordProgress();
 
@@ -352,21 +339,16 @@ export class HypothesesPrompt extends Prompt {
                             Make each idea count. Focus on impact, insight, and strategic creativity — like a top-tier CRO consultant would. OPTIPILOT!
                             `,
                     ],
-                    stream: true,
                 },
             );
 
             this.recordProgress();
-            streams = 0;
 
-            for await (const message of response) {
-                if (!(++streams % 27)) this.recordProgress();
+            await waitForRunCompletion(this.client, response.thread_id, response.id, {
+                onUpdate: () => this.recordProgress(),
+            });
 
-                // console.log(`message2`, message);
-                if (message.event === `thread.message.completed`) {
-                    hypotheses = JSON.parse(message.data.content[0].text.value);
-                }
-            }
+            hypotheses = await getLatestAssistantJSON(this.client, this.threadId);
 
             console.log(`Original hypotheses: ${JSON.stringify(hypotheses, null, 2)}`);
 
@@ -382,22 +364,16 @@ export class HypothesesPrompt extends Prompt {
                         Now please return the exact same message as before, just omit very generic ideas especially ones that say no more than "just make it more eye-catching bro". Make an effort to replace these with more thoughtful / insightful ideas.
                         `,
                     ],
-                    stream: true,
                 },
             );
 
             this.recordProgress();
-            streams = 0;
 
-            for await (const message of refinedResponse) {
-                if (!(++streams % 17)) this.recordProgress();
+            await waitForRunCompletion(this.client, refinedResponse.thread_id, refinedResponse.id, {
+                onUpdate: () => this.recordProgress(),
+            });
 
-                // console.log(`message3`, message);
-                if (message.event === `thread.message.completed`) {
-                    hypotheses = JSON.parse(message.data.content[0].text.value);
-                }
-            }
-
+            hypotheses = await getLatestAssistantJSON(this.client, this.threadId);
             this.recordProgress();
 
             return hypotheses;
@@ -488,11 +464,11 @@ export const sendFeedback = api.streamOut<HypothesesFeedbackRequest, HypothesesF
     async(parameters: HypothesesFeedbackRequest, stream) => {
         const prompt = new HypothesesPrompt(
             message => {
-                stream.send({ message: message ?? `` });
+                stream.send({ message: message ?? "" });
             },
             () => {},
             error => {
-                stream.send({ error: error ?? `` });
+                stream.send({ error: error ?? "" });
                 stream.close();
             },
             assistantId(),
@@ -507,3 +483,57 @@ export const sendFeedback = api.streamOut<HypothesesFeedbackRequest, HypothesesF
         await stream.close();
     },
 );
+
+type RunStatus =
+  | "queued"
+  | "in_progress"
+  | "requires_action"
+  | "cancelling"
+  | "cancelled"
+  | "completed"
+  | "failed"
+  | "expired";
+
+async function waitForRunCompletion(
+    client: OpenAI,
+    threadId: string,
+    runId: string,
+    options?: { intervalMs?: number; onUpdate?: (status: RunStatus) => void },
+) {
+    const interval = options?.intervalMs ?? 1000;
+
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+        const run = await client.beta.threads.runs.retrieve(threadId, runId);
+
+        const status = run.status as RunStatus;
+        options?.onUpdate?.(status);
+
+        if (
+            status === "completed" ||
+      status === "failed" ||
+      status === "cancelled" ||
+      status === "expired"
+        ) {
+            return run;
+        }
+
+        await new Promise(res => setTimeout(res, interval));
+    }
+}
+
+async function getLatestAssistantJSON(client: OpenAI, threadId: string) {
+    const messages = await client.beta.threads.messages.list(threadId);
+
+    const message = messages.data.find(m => m.role === "assistant");
+    if (!message) {
+        throw new Error("No assistant message found.");
+    }
+
+    const text = message.content?.[0]?.text?.value;
+    if (!text) {
+        throw new Error("Assistant message has no text content.");
+    }
+
+    return JSON.parse(text);
+}
